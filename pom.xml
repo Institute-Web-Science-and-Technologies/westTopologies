@@ -60,11 +60,42 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.4.0</version>
+                <groupId>org.codehaus.mojo</groupId>
+                <executions>
+                    <execution>
+                        <id>Storm deployment</id>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>storm</executable>
+                            <arguments>
+                                <argument>jar</argument>
+                                <argument>${project.build.directory}/${project.build.finalName}-jar-with-dependencies.jar</argument>
+                                <argument>uniko/west/westtopology/TopologyRunner</argument>
+                                <argument>${basedir}/config/storm_config.ini</argument>
+                                <argument>${restlet.url}</argument>
+                                <argument>${exchange.name}</argument>
+                                <argument>${nimbus.host}</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.7</maven.compiler.source>
         <maven.compiler.target>1.7</maven.compiler.target>
+        
+        <!-- These values are default values and will be overwritten by reveal_restlet  -->
+        <nimbus.host>localhost</nimbus.host>
+        <restlet.url>http://localhost:8182</restlet.url>
+        <exchange.name>test-exchange</exchange.name>
     </properties>
 </project>
