@@ -211,8 +211,6 @@ public class LocationCrawlerBolt extends BaseRichBolt {
 
         ArrayList<Map<String, Literal>> relatedLocations = new ArrayList<>();
 
-        // Print received message
-        Logger.getLogger(DiscussionTreeBolt.class.getName()).log(Level.INFO, "Received message: " + message.toString());
         if (message.containsKey("itinno:loc_set")) {
             List<Object> locationSet = (List<Object>) message.get("itinno:loc_set");
 

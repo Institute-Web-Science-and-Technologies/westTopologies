@@ -14,6 +14,8 @@ import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
@@ -34,7 +36,6 @@ public class InteractionGraphBolt extends BaseRichBolt {
 
     private OutputCollector collector;
     private String strExampleEmitFieldsId;
-    private boolean initialized = false;
 
     private DateTime deadline;
     private int intervalInMinutes = 10;
@@ -118,7 +119,7 @@ public class InteractionGraphBolt extends BaseRichBolt {
                 Logger.getLogger(DiscussionTreeBolt.class.getName()).log(Level.INFO, "Deadline expired, Buffer size : " + interactionGraph.size());
                 this.collector.emit(new Values(jsonResult));
 //                mapper.enable(SerializationFeature.INDENT_OUTPUT);
-//                mapper.writeValue(new File(strLogBaseDir + "/interactionGraph-"+bufferStartTime), jsonResultObject);
+//                mapper.writeValue(new File("/home/nico/storm_topology_dir/logs/interactionGraph-"+bufferStartTime), jsonResultObject);
                 this.interactionGraph = new HashMap<>();
                 this.bufferStartTime = null;
             } catch (JsonProcessingException ex) {

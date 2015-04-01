@@ -39,7 +39,6 @@ public class DiscussionTreeBolt extends BaseRichBolt {
 
     private OutputCollector collector;
     private String strExampleEmitFieldsId;
-    private boolean initialized = false;
 
     private DateTime deadline;
 

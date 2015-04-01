@@ -14,6 +14,8 @@ import java.util.logging.Logger;
 
 
 /**
+ * @author nico
+ * 
  * Deserialisation scheme for JSON values using the jackson library.
  */
 public class JacksonScheme implements Scheme {
@@ -24,18 +26,6 @@ public class JacksonScheme implements Scheme {
         this.mapper = new ObjectMapper();
     }
 
-    /**
-     * Deserialise a JSON value from <tt>bytes</tt> using the requested
-     * character encoding.
-     *
-     * @param bytes
-     * @return a one-element tuple containing the parsed JSON value.
-     *
-     * @throws IllegalArgumentException  if <tt>bytes</tt> does not contain
-     *           valid JSON encoded using the requested encoding.
-     * @throws IllegalStateException  if the requested character encoding is
-     *           not supported.
-     */
     @Override
     public List<Object> deserialize(byte[] bytes) {
         Object json = null;
@@ -48,10 +38,6 @@ public class JacksonScheme implements Scheme {
     }
 
 
-    /**
-     * Emits tuples containing only one field, named "object".
-     * @return 
-     */
     @Override
     public Fields getOutputFields() {
         return new Fields("object");
