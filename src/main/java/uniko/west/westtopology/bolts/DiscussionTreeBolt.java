@@ -12,17 +12,16 @@ import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -45,12 +44,11 @@ public class DiscussionTreeBolt extends BaseRichBolt {
     private DateTime bufferStartTime = null;
 
     private int intervalInMinutes = 10;
-    private List<Tweet> discussionTrees = new ArrayList<>();
-
+    private Map<String, Tweet> rootTweetsMap = new LinkedHashMap<>();
+    private Map<String, Tweet> childrenTweetsMap = new HashMap<>();
 
     public DiscussionTreeBolt(String strExampleEmitFieldsId) {
         super();
-
         this.strExampleEmitFieldsId = strExampleEmitFieldsId;
     }
 
@@ -83,16 +81,16 @@ public class DiscussionTreeBolt extends BaseRichBolt {
         Map<Object, Object> inputMap = (HashMap<Object, Object>) input.getValue(0);
         // Get JSON object from the HashMap from the Collections.singletonList
         Map<Object, Object> message = (Map<Object, Object>) inputMap.get("message");
-        
+
         // Acknowledge the collector that we actually received the input
         collector.ack(input);
-        
-        if(!message.containsKey("created_at")) {
+
+        if (!message.containsKey("created_at")) {
             return;     // skip delete messages
         }
         // Print received message
 //        this.logger.info("Received message: " + message.toJSONString());
-        
+
         String timeStamp = (String) message.get("created_at");
         DateTime timestamp = DateTime.parse(timeStamp, DateTimeFormat.forPattern("EEE MMM dd HH:mm:ss Z yyyy").withLocale(Locale.US));
 
@@ -118,24 +116,20 @@ public class DiscussionTreeBolt extends BaseRichBolt {
         Tweet tweet = new Tweet(authorId, tweetId, timestamp, text, ancestorTweetId, true, retweet);
 
         if (ancestorTweetId != null) {
-            boolean observed = false;
-            for (Tweet t : discussionTrees) {
-                if(t.getChildrenIds().contains(tweet.in_reply_to)) {
-                    observed = true;
-                    attachTweetToLeaf(t, tweet);
-                    break;
-                }
-            }
-            if (!observed) {
+            if (rootTweetsMap.containsKey(tweet.getIn_reply_to())) {
+                rootTweetsMap.get(tweet.getIn_reply_to()).getReplies().add(tweet);
+            } else if (childrenTweetsMap.containsKey(tweet.getIn_reply_to())) {
+                childrenTweetsMap.get(tweet.getIn_reply_to()).getReplies().add(tweet);
+            } else {
                 // tweet is a reply or retweet but its ancestor was'nt observed by this bolt, therefore its ancestor is treated as a dummy entry
                 Tweet dummyTweet = new Tweet(ancestorAuthorId, ancestorTweetId, null, null, null, false, false);
-                dummyTweet.getChildrenIds().add(tweetId);
                 dummyTweet.getReplies().add(tweet);
-                discussionTrees.add(dummyTweet);
+                rootTweetsMap.put(ancestorTweetId, dummyTweet);
             }
+            childrenTweetsMap.put(tweetId, tweet);
         } else {
             // tweet is no reply or retweet 
-            discussionTrees.add(tweet);
+            rootTweetsMap.put(tweetId, tweet);
         }
 
         if (timestamp.isAfter(deadline) || timestamp.isEqual(deadline)) {
@@ -145,14 +139,15 @@ public class DiscussionTreeBolt extends BaseRichBolt {
                 HashMap<String, Object> jsonResult = new HashMap<>();
                 jsonResult.put("start", bufferStartTime.toString());
                 jsonResult.put("end", timestamp.toString());
-                jsonResult.put("result", discussionTrees);
+                jsonResult.put("result", rootTweetsMap.values());
                 jsonResultString = mapper.writeValueAsString(jsonResult);
-                Logger.getLogger(DiscussionTreeBolt.class.getName()).log(Level.INFO, "Deadline expired, Buffer size : " + discussionTrees.size());
+                Logger.getLogger(DiscussionTreeBolt.class.getName()).log(Level.INFO, "Deadline expired, Buffer size : " + rootTweetsMap.size());
                 this.collector.emit(new Values(jsonResultString));
 //                mapper.enable(SerializationFeature.INDENT_OUTPUT);
-//                mapper.writeValue(new File(strLogBaseDir + "/discussionTree-"+bufferStartTime), jsonResult);
+//                mapper.writeValue(new File("/home/nico/storm_topology_dir/logs/discussionTree-" + bufferStartTime), jsonResult);
                 bufferStartTime = null;
-                this.discussionTrees = new ArrayList<>();
+                this.rootTweetsMap = new LinkedHashMap<>();
+                this.childrenTweetsMap = new HashMap<>();
             } catch (JsonProcessingException ex) {
                 Logger.getLogger(DiscussionTreeBolt.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
             } catch (IOException ex) {
@@ -172,21 +167,7 @@ public class DiscussionTreeBolt extends BaseRichBolt {
         declarer.declare(new Fields(strExampleEmitFieldsId));
     }
 
-    private void attachTweetToLeaf(Tweet rootTweet, Tweet tweetToAttach) {
-        if(rootTweet.getTweet_id().equals(tweetToAttach.getIn_reply_to())) {
-            rootTweet.getChildrenIds().add(tweetToAttach.getTweet_id());
-            rootTweet.getReplies().add(tweetToAttach);
-            
-        } else if(rootTweet.getChildrenIds().contains(tweetToAttach.getIn_reply_to())) {
-            rootTweet.getChildrenIds().add(tweetToAttach.getTweet_id());
-            
-            for(Tweet reply : rootTweet.getReplies()) {
-                attachTweetToLeaf(reply, tweetToAttach);
-            }
-        } 
-    }
-
-    public class Tweet implements Comparable<Tweet> {
+    public class Tweet {
 
         private String author_id;
         private String tweet_id;
@@ -197,8 +178,6 @@ public class DiscussionTreeBolt extends BaseRichBolt {
         private boolean observed;
         private boolean retweet;
         private List<Tweet> replies = new ArrayList<>();
-        @JsonIgnore
-        private HashSet<String> childrenIds;
 
         public Tweet(String authorId, String tweetId, DateTime timestamp, String text, String inReplyTo, boolean observed, boolean retweet) {
             this.author_id = authorId;
@@ -208,7 +187,6 @@ public class DiscussionTreeBolt extends BaseRichBolt {
             this.in_reply_to = inReplyTo;
             this.observed = observed;
             this.retweet = retweet;
-            this.childrenIds = new HashSet<>(Arrays.asList(tweet_id));
         }
 
         /**
@@ -323,26 +301,6 @@ public class DiscussionTreeBolt extends BaseRichBolt {
             this.replies = replies;
         }
 
-        /**
-         * @return the childrenIds
-         */
-        @JsonIgnore
-        public HashSet<String> getChildrenIds() {
-            return childrenIds;
-        }
-
-        /**
-         * @param childrenIds the childrenIds to set
-         */
-        public void setChildrenIds(HashSet<String> childrenIds) {
-            this.childrenIds = childrenIds;
-        }
-
-        @Override
-        public int compareTo(Tweet o) {
-            return this.timestamp.compareTo(o.getTimestamp());
-        }
-        
         @Override
         public String toString() {
             try {
