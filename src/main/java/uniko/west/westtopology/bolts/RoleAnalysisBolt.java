@@ -84,15 +84,15 @@ public class RoleAnalysisBolt extends BaseRichBolt {
             RoleAssociation ra = new RoleAssociation();
             ra.process(users);
 
-            try (PrintStream out = new PrintStream(new File("/home/nico/storm_topology_dir/logs/out" + message.hashCode() + ".log"), "UTF8")) {
-                for (UserWithRole uwr : users) {
-                    out.println(uwr.id + "\t" + uwr.username + "\t" + uwr.role);
-                }
-            } catch (FileNotFoundException ex) {
-                Logger.getLogger(RoleAnalysisBolt.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (UnsupportedEncodingException ex) {
-                Logger.getLogger(RoleAnalysisBolt.class.getName()).log(Level.SEVERE, null, ex);
-            }
+//            try (PrintStream out = new PrintStream(new File("/home/nico/storm_topology_dir/logs/out" + message.hashCode() + ".log"), "UTF8")) {
+//                for (UserWithRole uwr : users) {
+//                    out.println(uwr.id + "\t" + uwr.username + "\t" + uwr.role);
+//                }
+//            } catch (FileNotFoundException ex) {
+//                Logger.getLogger(RoleAnalysisBolt.class.getName()).log(Level.SEVERE, null, ex);
+//            } catch (UnsupportedEncodingException ex) {
+//                Logger.getLogger(RoleAnalysisBolt.class.getName()).log(Level.SEVERE, null, ex);
+//            }
         } catch (IOException ex) {
             Logger.getLogger(RoleAnalysisBolt.class.getName()).log(Level.SEVERE, null, ex);
         }
