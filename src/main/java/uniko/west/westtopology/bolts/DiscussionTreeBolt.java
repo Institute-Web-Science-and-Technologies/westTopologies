@@ -100,12 +100,14 @@ public class DiscussionTreeBolt extends BaseRichBolt {
         }
 
         String authorId = (String) ((Map<Object, Object>) message.get("user")).get("id_str");
+        String authorScreenName = (String) ((Map<Object, Object>) message.get("user")).get("screen_name");
         String text = (String) message.get("text");
         String tweetId = (String) message.get("id_str");
         boolean retweet = false;
 
         String ancestorTweetId = (String) message.get("in_reply_to_status_id_str");
         String ancestorAuthorId = (String) message.get("in_reply_to_user_id_str");
+        String ancestorAutorScreenName = (String) message.get("in_reply_to_screen_name");
 
         Map<Object, Object> retweeted_status = (Map<Object, Object>) message.get("retweeted_status");
         if (retweeted_status != null) {
@@ -113,7 +115,7 @@ public class DiscussionTreeBolt extends BaseRichBolt {
             ancestorTweetId = (String) ((Map<Object, Object>) message.get("retweeted_status")).get("id_str");
         }
 
-        Tweet tweet = new Tweet(authorId, tweetId, timestamp, text, ancestorTweetId, true, retweet);
+        Tweet tweet = new Tweet(authorId, authorScreenName, tweetId, timestamp, text, ancestorTweetId, true, retweet);
 
         if (ancestorTweetId != null) {
             if (rootTweetsMap.containsKey(tweet.getIn_reply_to())) {
@@ -122,7 +124,7 @@ public class DiscussionTreeBolt extends BaseRichBolt {
                 childrenTweetsMap.get(tweet.getIn_reply_to()).getReplies().add(tweet);
             } else {
                 // tweet is a reply or retweet but its ancestor was'nt observed by this bolt, therefore its ancestor is treated as a dummy entry
-                Tweet dummyTweet = new Tweet(ancestorAuthorId, ancestorTweetId, null, null, null, false, false);
+                Tweet dummyTweet = new Tweet(ancestorAuthorId, ancestorAutorScreenName, ancestorTweetId, null, null, null, false, false);
                 dummyTweet.getReplies().add(tweet);
                 rootTweetsMap.put(ancestorTweetId, dummyTweet);
             }
@@ -170,6 +172,7 @@ public class DiscussionTreeBolt extends BaseRichBolt {
     public class Tweet {
 
         private String author_id;
+        private String author_screen_name;
         private String tweet_id;
         @JsonSerialize(using = ToStringSerializer.class)
         private DateTime timestamp;
@@ -179,8 +182,9 @@ public class DiscussionTreeBolt extends BaseRichBolt {
         private boolean retweet;
         private List<Tweet> replies = new ArrayList<>();
 
-        public Tweet(String authorId, String tweetId, DateTime timestamp, String text, String inReplyTo, boolean observed, boolean retweet) {
+        public Tweet(String authorId, String authorScreenName, String tweetId, DateTime timestamp, String text, String inReplyTo, boolean observed, boolean retweet) {
             this.author_id = authorId;
+            this.author_screen_name = authorScreenName;
             this.tweet_id = tweetId;
             this.timestamp = timestamp;
             this.text = text;
@@ -201,6 +205,20 @@ public class DiscussionTreeBolt extends BaseRichBolt {
          */
         public void setAuthor_id(String author_id) {
             this.author_id = author_id;
+        }
+        
+        /**
+         * @return the author_screen_name
+         */
+        public String getAuthor_screen_name() {
+            return author_screen_name;
+        }
+
+        /**
+         * @param author_screen_name the author_screen_name to set
+         */
+        public void setAuthor_screen_name(String author_screen_name) {
+            this.author_screen_name = author_screen_name;
         }
 
         /**

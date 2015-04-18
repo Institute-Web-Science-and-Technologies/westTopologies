@@ -22,6 +22,7 @@ import java.util.logging.Logger;
 import uniko.west.westtopology.bolts.DiscussionTreeBolt;
 import uniko.west.westtopology.bolts.InteractionGraphBolt;
 import uniko.west.westtopology.bolts.LocationCrawlerBolt;
+import uniko.west.westtopology.bolts.RoleAnalysisBolt;
 import util.ExampleSocialMediaAMQPSpout;
 import util.ExampleSocialMediaStormDeclarator;
 import util.JacksonScheme;
@@ -41,6 +42,7 @@ public class TopologyRunner {
 //      LocationCrawlerBolt locationCrawlerBolt;
         DiscussionTreeBolt discussionTreeBolt;
         InteractionGraphBolt interactionGraphBolt;
+        RoleAnalysisBolt roleAnalysisBolt;
 
         // Storm RabbitMQ queue declarator
         Declarator declarator;
@@ -152,6 +154,10 @@ public class TopologyRunner {
         discussionTreeBolt = new DiscussionTreeBolt(emitFieldsId);
         boltDeclarer = builder.setBolt("discussionTeeBoltId", discussionTreeBolt);
         boltDeclarer.shuffleGrouping(spoutId);
+        
+        roleAnalysisBolt = new RoleAnalysisBolt(emitFieldsId);
+        boltDeclarer = builder.setBolt("roleAnalyisBoltId", roleAnalysisBolt);
+        boltDeclarer.shuffleGrouping("discussionTeeBoltId");
 
         interactionGraphBolt = new InteractionGraphBolt(emitFieldsId);
         boltDeclarer = builder.setBolt("interactionGraphBoltId", interactionGraphBolt);
