@@ -61,85 +61,103 @@
         </dependency>    
     </dependencies>
     <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-install-plugin</artifactId>
-                <version>2.4</version>
- 				<configuration>
- 				  <lifecycleMappingMetadata>
- 				    <pluginExecutions>
- 				      <pluginExecution>
- 				        <pluginExecutionFilter>
- 				          <id>ext_jars</id>
- 				          <phase>initialize</phase>
- 				          <goals>
- 				            <goal>install-file</goal>
- 				          </goals>
- 				          <configuration>
- 				            <groupId>west</groupId>
- 				            <artifactId>Reveal-interaction</artifactId>
- 				            <version>1.0</version>
- 				            <packaging>jar</packaging>
- 				            <file>${basedir}/ext_jars/Reveal-interaction-1.0.jar</file>
- 				          </configuration>
- 				        </pluginExecutionFilter>
- 				        <action>
- 				          <execute>
- 				            <runOnIncremental>false</runOnIncremental>
- 				          </execute >
- 				        </action>
- 				      </pluginExecution>
- 				    </pluginExecutions>
- 				  </lifecycleMappingMetadata>
- 			   </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <version>2.5.3</version>
-                <configuration>
-                    <descriptorRefs>
-                        <descriptorRef>jar-with-dependencies</descriptorRef>
-                    </descriptorRefs>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>assemble-all</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>1.4.0</version>
-                <groupId>org.codehaus.mojo</groupId>
-                <executions>
-                    <execution>
-                        <id>Storm deployment</id>
-                        <phase>install</phase>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                        <configuration>
-                            <executable>storm</executable>
-                            <arguments>
-                                <argument>jar</argument>
-                                <argument>${project.build.directory}/${project.build.finalName}-jar-with-dependencies.jar</argument>
-                                <argument>uniko/west/westtopology/TopologyRunner</argument>
-                                <argument>${basedir}/config/storm_config.ini</argument>
-                                <argument>${restlet.url}</argument>
-                                <argument>${exchange.name}</argument>
-                                <argument>${nimbus.host}</argument>
-                            </arguments>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
+        <pluginManagement>
+            <plugins>
+                <!--This plugin's configuration is used to store Eclipse m2e settings only. 
+                    It has no influence on the Maven build itself.
+                    See http://stackoverflow.com/a/6372575/2174538 -->
+                <plugin>
+                    <groupId>org.eclipse.m2e</groupId>
+                    <artifactId>lifecycle-mapping</artifactId>
+                    <version>1.0.0</version>
+                    <configuration>
+                        <lifecycleMappingMetadata>
+                            <pluginExecutions>
+                                <pluginExecution>
+                                    <pluginExecutionFilter>
+                                        <groupId>org.apache.maven.plugins</groupId>
+                                        <artifactId>maven-install-plugin</artifactId>
+                                        <versionRange>[2.4,)</versionRange>
+                                        <goals>
+                                            <goal>install-file</goal>
+                                        </goals>
+                                    </pluginExecutionFilter>
+                                    <action>
+                                        <execute />
+                                    </action>
+                                </pluginExecution>
+                            </pluginExecutions>
+                        </lifecycleMappingMetadata>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-install-plugin</artifactId>
+                    <version>2.4</version>
+ 		            <executions>
+                        <execution>
+                            <id>ext_jars</id>
+                            <phase>initialize</phase>
+                            <goals>
+                                <goal>install-file</goal>
+                            </goals>
+                            <configuration>
+                                <groupId>west</groupId>
+                                <artifactId>Reveal-interaction</artifactId>
+                                <version>1.0</version>
+                                <packaging>jar</packaging>
+                                <file>${basedir}/ext_jars/Reveal-interaction-1.0.jar</file>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-assembly-plugin</artifactId>
+                    <version>2.5.3</version>
+                    <configuration>
+                        <descriptorRefs>
+                            <descriptorRef>jar-with-dependencies</descriptorRef>
+                        </descriptorRefs>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>assemble-all</id>
+                            <phase>package</phase>
+                            <goals>
+                                <goal>single</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <artifactId>exec-maven-plugin</artifactId>
+                    <version>1.4.0</version>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <executions>
+                        <execution>
+                            <id>Storm deployment</id>
+                            <phase>install</phase>
+                            <goals>
+                                <goal>exec</goal>
+                            </goals>
+                            <configuration>
+                                <executable>storm</executable>
+                                <arguments>
+                                    <argument>jar</argument>
+                                    <argument>${project.build.directory}/${project.build.finalName}-jar-with-dependencies.jar</argument>
+                                    <argument>uniko/west/westtopology/TopologyRunner</argument>
+                                    <argument>${basedir}/config/storm_config.ini</argument>
+                                    <argument>${restlet.url}</argument>
+                                    <argument>${exchange.name}</argument>
+                                    <argument>${nimbus.host}</argument>
+                                </arguments>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>
+        </pluginManagement>
     </build>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -151,4 +169,4 @@
         <restlet.url>http://localhost:8182</restlet.url>
         <exchange.name>test-exchange</exchange.name>
     </properties>
-</project>
+</project> 
