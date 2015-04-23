@@ -63,9 +63,9 @@
     <build>
         <pluginManagement>
             <plugins>
-                <!--This plugin's configuration is used to store Eclipse m2e settings only. 
-                    It has no influence on the Maven build itself.
-                    See http://stackoverflow.com/a/6372575/2174538 -->
+                <!-- This plugin's configuration is used to store Eclipse m2e settings only. 
+                     It has no influence on the Maven build itself.
+                     See http://stackoverflow.com/a/6372575/2174538 -->
                 <plugin>
                     <groupId>org.eclipse.m2e</groupId>
                     <artifactId>lifecycle-mapping</artifactId>
@@ -94,7 +94,7 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-install-plugin</artifactId>
                     <version>2.4</version>
- 		            <executions>
+                    <executions>
                         <execution>
                             <id>ext_jars</id>
                             <phase>initialize</phase>
