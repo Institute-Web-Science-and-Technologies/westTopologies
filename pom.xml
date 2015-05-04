@@ -65,8 +65,14 @@
         </dependency>
         <dependency>
             <groupId>west</groupId>
-            <artifactId>Reveal-interaction</artifactId>
+            <artifactId>reveal-interaction</artifactId>
             <version>1.0</version>
+            <type>jar</type>
+        </dependency>    
+        <dependency>
+            <groupId>west</groupId>
+            <artifactId>reveal-predict-location</artifactId>
+            <version>0.1</version>
             <type>jar</type>
         </dependency>    
     </dependencies>
@@ -109,21 +115,36 @@
                 <version>2.4</version>
                 <executions>
                     <execution>
-                        <id>ext_jars</id>
+                        <id>install-reveal-interaction</id>
                         <phase>initialize</phase>
                         <goals>
                             <goal>install-file</goal>
                         </goals>
                         <configuration>
                             <groupId>west</groupId>
-                            <artifactId>Reveal-interaction</artifactId>
+                            <artifactId>reveal-interaction</artifactId>
                             <version>1.0</version>
                             <packaging>jar</packaging>
-                            <file>${basedir}/ext_jars/Reveal-interaction-1.0.jar</file>
+                            <file>${basedir}/ext_jars/west/reveal-interaction-1.0.jar</file>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>install-reveal-predict-location</id>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>install-file</goal>
+                        </goals>
+                        <configuration>
+                            <groupId>west</groupId>
+                            <artifactId>reveal-predict-location</artifactId>
+                            <version>0.1</version>
+                            <packaging>jar</packaging>
+                            <file>${basedir}/ext_jars/west/reveal-predict-location-0.1.jar</file>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
