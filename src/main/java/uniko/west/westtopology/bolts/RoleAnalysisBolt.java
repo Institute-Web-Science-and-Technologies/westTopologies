@@ -13,6 +13,8 @@ import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.unikoblenz.west.reveal.analytics.CommunityAnalysis;
+import de.unikoblenz.west.reveal.pserver.PServerConfiguration;
+import de.unikoblenz.west.reveal.pserver.PServerRoleClient;
 import de.unikoblenz.west.reveal.roles.RoleAssociation;
 import de.unikoblenz.west.reveal.roles.UserWithFeatures;
 import de.unikoblenz.west.reveal.roles.UserWithRole;
@@ -37,11 +39,29 @@ public class RoleAnalysisBolt extends BaseRichBolt {
 
     private OutputCollector collector;
     private String strExampleEmitFieldsId;
+    private String hostname;
+    private String mode;
+    private String clientName;
+    private String clientPasswd;
+    private boolean initServerData;
 
-    public RoleAnalysisBolt(String strExampleEmitFieldsId) {
+    /**
+     *
+     * @param strExampleEmitFieldsId
+     * @param hostname
+     * @param mode
+     * @param clientName
+     * @param clientPasswd
+     * @param initServerData
+     */
+    public RoleAnalysisBolt(String strExampleEmitFieldsId, String hostname, String mode, String clientName, String clientPasswd, boolean initServerData) {
         super();
-
         this.strExampleEmitFieldsId = strExampleEmitFieldsId;
+        this.hostname = hostname;
+        this.mode = mode;
+        this.clientName = clientName;
+        this.clientPasswd = clientPasswd;
+        this.initServerData = initServerData;
     }
 
     @Override
@@ -93,6 +113,20 @@ public class RoleAnalysisBolt extends BaseRichBolt {
 //            } catch (UnsupportedEncodingException ex) {
 //                Logger.getLogger(RoleAnalysisBolt.class.getName()).log(Level.SEVERE, null, ex);
 //            }
+            PServerConfiguration config = new PServerConfiguration();
+            config.setClientName(clientName);
+            config.setClientPass(clientPasswd);
+            config.setHost(hostname);
+            config.setMode(mode);
+            PServerRoleClient pservRoleClient = new PServerRoleClient(config);
+            
+            if(initServerData) {
+                pservRoleClient.initializePserverModel();
+            }
+            for (UserWithRole u : users) {
+                pservRoleClient.addUser(u);
+            }
+            
         } catch (IOException ex) {
             Logger.getLogger(RoleAnalysisBolt.class.getName()).log(Level.SEVERE, null, ex);
         }

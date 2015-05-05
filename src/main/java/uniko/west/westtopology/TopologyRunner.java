@@ -50,15 +50,18 @@ public class TopologyRunner {
 
         // Main Storm Social Media Properties file
         File configFile = new File(args[0]);
+        File pServerConfigFile = new File(args[1]);
         // URL of restlet service 
-        String restletURL = args[1];
-        String rmqExchange = args[2];
-        String nimbusHost = args[3];
+        String restletURL = args[2];
+        String rmqExchange = args[3];
+        String nimbusHost = args[4];
 
         // Create Java properties file from the passed configuration file
         Properties properties = new Properties();
+        Properties pServerConfig = new Properties();
         try {
             properties.load(new FileInputStream(configFile));
+            pServerConfig.load(new FileInputStream(pServerConfigFile));
         } catch (IOException ex) {
             Logger.getLogger(TopologyRunner.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -82,6 +85,14 @@ public class TopologyRunner {
         boolean spoutDebug = Boolean.valueOf(properties.getProperty("spout_debug", "false"));
         int rmqPrefetch = Integer.parseInt(properties.getProperty("spout_rmqprefetch", "200"));
         int maxSpoutPending = Integer.parseInt(properties.getProperty("spout_max_spout_pending", "200"));
+        
+        
+        String pServerHostName = pServerConfig.getProperty("hostName");
+        String pServerMode = pServerConfig.getProperty("mode");
+        String pServerClientName = pServerConfig.getProperty("clientName");
+        String pServerClientPasswd = pServerConfig.getProperty("clientPasswd");
+        boolean pServerInitData = Boolean.valueOf(pServerConfig.getProperty("initServerData"));
+
 
         JacksonScheme jsonScheme = new JacksonScheme();
 
@@ -155,7 +166,7 @@ public class TopologyRunner {
         boltDeclarer = builder.setBolt("discussionTeeBoltId", discussionTreeBolt);
         boltDeclarer.shuffleGrouping(spoutId);
         
-        roleAnalysisBolt = new RoleAnalysisBolt(emitFieldsId);
+        roleAnalysisBolt = new RoleAnalysisBolt(emitFieldsId, pServerHostName, pServerMode, pServerClientName, pServerClientPasswd, pServerInitData);
         boltDeclarer = builder.setBolt("roleAnalyisBoltId", roleAnalysisBolt);
         boltDeclarer.shuffleGrouping("discussionTeeBoltId");
 
