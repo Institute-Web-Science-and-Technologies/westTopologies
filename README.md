@@ -13,6 +13,6 @@ run `mvn initialize` in order to install third-party jars into your local maven 
 
 ## Deploying Topologies
 * Deployment without using the REST service
-  * run `mvn --projects someTopology clean install` in order to deploy someTopology to the storm cluster
+  * run `mvn --projects someTopology clean install` in order to deploy *someTopology* to the storm cluster
 * Deployment with the REST service
-  * Follow the instructions of the [REST service](https://github.com/Institute-Web-Science-and-Technologies/reveal_restlet)
+  * start the [REST service](https://github.com/Institute-Web-Science-and-Technologies/reveal_restlet) and call `http://localhost:8182/storm/someTopology/deploy?channel=someChannel` in order to deploy *someTopology* on *someChannel* 
