@@ -1,3 +1,5 @@
 # westTopology
+## Install
+run `mvn initialize` in order to install third-party jars into your local maven repository
 ## Usage
-run `mvn initialize clean install` in order to deploy the topology with default properties (test-exchange on localhost)
+run `mvn --projects someTopology clean install` in order to deploy someTopology to the storm cluster
