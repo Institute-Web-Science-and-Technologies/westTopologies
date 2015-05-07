@@ -5,6 +5,7 @@ run `mvn initialize` in order to install third-party jars into your local maven 
 ## Creating a new topology
 * Choose a name for the topology and create a folder with this name inside this project (the name should be URL compatible)
 * Each topology has to be an own maven module of this project and therefore has to be listed in the [parent POM](https://github.com/Institute-Web-Science-and-Technologies/westTopologies/blob/master/pom.xml)
+* Each topology has to have its own *TopologyRunner* class which defines how its bolts are assembled. An example of this class is available [here](https://github.com/Institute-Web-Science-and-Technologies/westTopologies/blob/master/roleAnalysisTopology/src/main/java/uniko/west/topology/TopologyRunner.java)
 * Examples of topology modules with an existing pom are available [here](https://github.com/Institute-Web-Science-and-Technologies/westTopologies/tree/master/lodExplorerTopology) and [here](https://github.com/Institute-Web-Science-and-Technologies/westTopologies/tree/master/roleAnalysisTopology)
 
 ## Implementing a storm bolt
