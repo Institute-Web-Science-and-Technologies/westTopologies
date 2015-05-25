@@ -40,11 +40,11 @@ public class LocationTopicModelTrainer {
 
 	public static void main(String[] args) {
 		LocationTopicModelTrainer locationTopicModelTrainer = new LocationTopicModelTrainer();
-		// locationTopicModelTrainer.createTrainingFile(
-		// "/home/martin/reveal/files/snow14_testset_tweets_small.zip",
-		// "/home/martin/reveal/files/training/snow14.txt", true);
-		locationTopicModelTrainer.setTrainingFile(new File(
-				"/home/martin/reveal/files/training/snow14.txt"));
+		locationTopicModelTrainer.createTrainingFile(
+				"/home/martin/reveal/files/snow14_testset_tweets.zip",
+				"/home/martin/reveal/files/training/snow14.txt", true);
+		// locationTopicModelTrainer.setTrainingFile(new File(
+		// "/home/martin/reveal/files/training/snow14.txt"));
 		locationTopicModelTrainer.trainTopicModel();
 	}
 
@@ -138,8 +138,8 @@ public class LocationTopicModelTrainer {
 							String langDetected;
 							langDetected = detector.detect();
 							if (langDetected.equals("en")) {
-								bufferedTmpWriter.write(coordinates.get(0)
-										+ " " + coordinates.get(1) + " "
+								bufferedTmpWriter.write(coordinates.get(1)
+										+ " " + coordinates.get(0) + " "
 										+ tweetText + "\n");
 								numberOfTweets++;
 							}
@@ -176,18 +176,18 @@ public class LocationTopicModelTrainer {
 	public void trainTopicModel() {
 		if (this.trainingFile == null) {
 			throw new IllegalAccessError(
-					"specify training File or run createTrainingFile()");
+					"specify training File (setTrainingFile()) or run createTrainingFile()");
 		}
 		// run topic model trainer
-		String dir = "/home/martin/reveal/files/training/";
-		String name = "snow.txt";
-		String arg = "-dir " + dir + " -dfile " + name + ".txt " + "-est "
-				+ "-L 849 " + "-beta 0.1 " + "-betaa 1 " + "-betab 1 "
-				+ "-gamma 1.0 " + "-gammaa 1.0 " + "-gammab 0.1 "
-				+ "-delta 10.0 " + "-Alpha 1 " + "-Alphaa 1 " + "-Alphab 1 "
-				+ "-alpha0 1 " + "-alpha0a 1 " + "-alpha0b 1 " + "-savestep 5 "
-				+ "-twords 20 " + "-niters 2 " + "-runs 1 "
-				+ "-sampleHyper true";
+		// TODO: cleanup args
+		String dir = this.trainingFile.getParent();
+		String name = this.trainingFile.getName();
+		String arg = "-dir " + dir + " -dfile " + name + " -est " + "-L 849 "
+				+ "-beta 0.1 " + "-betaa 1 " + "-betab 1 " + "-gamma 1.0 "
+				+ "-gammaa 1.0 " + "-gammab 0.1 " + "-delta 10.0 "
+				+ "-Alpha 1 " + "-Alphaa 1 " + "-Alphab 1 " + "-alpha0 1 "
+				+ "-alpha0a 1 " + "-alpha0b 1 " + "-savestep 5 "
+				+ "-twords 20 " + "-niters 200 " + "-sampleHyper true";
 		String[] args = arg.split(" ");
 		LDA3.main(args);
 	}
