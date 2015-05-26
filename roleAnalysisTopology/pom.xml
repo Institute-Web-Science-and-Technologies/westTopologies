@@ -57,36 +57,38 @@
                         </lifecycleMappingMetadata>
                     </configuration>
                 </plugin>
-           	    <plugin>
-           	        <groupId>org.apache.maven.plugins</groupId>
-           	        <artifactId>maven-install-plugin</artifactId>
-           	        <version>2.4</version>
-           	        <executions>
-           	            <execution>
-           	                <id>install-reveal-interaction</id>
-           	                <phase>initialize</phase>
-           	                <goals>
-           	                    <goal>install-file</goal>
-           	                </goals>
-           	                <configuration>
-           	                    <groupId>west</groupId>
-           	                    <artifactId>reveal-interaction</artifactId>
-           	                    <version>1.0</version>
-           	                    <packaging>jar</packaging>
-           	                    <file>${basedir}/ext_jars/west/reveal-interaction-1.0.jar</file>
-           	                </configuration>
-           	            </execution>
-           	        </executions>
-           	    </plugin>
-            	<plugin>
-            	    <groupId>org.apache.maven.plugins</groupId>
-            	    <artifactId>maven-assembly-plugin</artifactId>
-            	</plugin>
-            	<plugin>
-            	    <artifactId>exec-maven-plugin</artifactId>
-            	    <groupId>org.codehaus.mojo</groupId>
-            	</plugin>
-           	</plugins>
+            </plugins>
        	</pluginManagement>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-install-plugin</artifactId>
+                <version>2.4</version>
+                <executions>
+                    <execution>
+                        <id>install-reveal-interaction</id>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>install-file</goal>
+                        </goals>
+                        <configuration>
+                            <groupId>west</groupId>
+                            <artifactId>reveal-interaction</artifactId>
+                            <version>1.0</version>
+                            <packaging>jar</packaging>
+                            <file>${basedir}/ext_jars/west/reveal-interaction-1.0.jar</file>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        	<plugin>
+        	    <groupId>org.apache.maven.plugins</groupId>
+        	    <artifactId>maven-assembly-plugin</artifactId>
+        	</plugin>
+        	<plugin>
+        	    <artifactId>exec-maven-plugin</artifactId>
+        	    <groupId>org.codehaus.mojo</groupId>
+        	</plugin>
+        </plugins>
     </build>
 </project>
