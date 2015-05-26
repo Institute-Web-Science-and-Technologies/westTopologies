@@ -6,7 +6,7 @@
         <artifactId>westTopologies</artifactId>
         <version>1.0</version>
     </parent>
-    <artifactId>roleAnalysisTopology</artifactId>
+    <artifactId>locationTopicModelTopology</artifactId>
     <packaging>jar</packaging>
     <dependencies>
         <dependency>
