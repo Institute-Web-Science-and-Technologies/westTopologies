@@ -29,12 +29,9 @@ import com.rabbitmq.client.ConnectionFactory;
 
 public class TopologyRunner {
 
-	public static String topologyName = "roleAnalysisTopology"; // the name is
-																// not important
-																// at this place
-																// it is just
-																// used in the
-																// storm UI
+	// the name is not important at this place since it is just used in the
+	// storm UI
+	public static String topologyName = "locationTopicModelTopology";
 
 	public static void main(String[] args) {
 		TopologyBuilder builder;
