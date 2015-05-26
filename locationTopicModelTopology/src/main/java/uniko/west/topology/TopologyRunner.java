@@ -12,7 +12,8 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import uniko.west.topology.bolts.LocationTopicModelBolt;
+import uniko.west.topology.bolts.TopicModelBolt;
+import uniko.west.topology.bolts.TweetIndexBolt;
 import util.ExampleSocialMediaAMQPSpout;
 import util.ExampleSocialMediaStormDeclarator;
 import util.JacksonScheme;
@@ -203,11 +204,14 @@ public class TopologyRunner {
 
 		BoltDeclarer boltDeclarer;
 
-		LocationTopicModelBolt locationTopicModelBolt = new LocationTopicModelBolt(
-				emitFieldsId, "/home/martin/reveal/files/wordmap.txt");
-		boltDeclarer = builder.setBolt("locationTopicModelBoltId",
-				locationTopicModelBolt);
+		TweetIndexBolt tweetIndexBolt = new TweetIndexBolt(emitFieldsId,
+				"/home/martin/reveal/files/training/wordmap.txt");
+		boltDeclarer = builder.setBolt("TweetIndexBoltId", tweetIndexBolt);
 		boltDeclarer.shuffleGrouping(spoutId);
+
+		TopicModelBolt topicModelBolt = new TopicModelBolt(emitFieldsId);
+		boltDeclarer = builder.setBolt("TopicModelBoltId", topicModelBolt);
+		boltDeclarer.shuffleGrouping("TweetIndexBoltId");
 
 		try {
 			// Submit the topology to the distribution cluster that will be
