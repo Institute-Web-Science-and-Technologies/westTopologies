@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package uniko.west.westtopology.bolts;
+package uniko.west.topology.bolts;
 
 import java.io.File;
 import java.io.FileNotFoundException;

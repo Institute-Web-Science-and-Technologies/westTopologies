@@ -1,4 +1,4 @@
-package util;
+package uniko.west.topology.train;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
