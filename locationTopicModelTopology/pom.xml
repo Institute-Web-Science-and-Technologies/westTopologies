@@ -6,7 +6,7 @@
         <artifactId>westTopologies</artifactId>
         <version>1.0</version>
     </parent>
-    <artifactId>roleAnalysisTopology</artifactId>
+    <artifactId>locationTopicModelTopology</artifactId>
     <packaging>jar</packaging>
     <dependencies>
         <dependency>
@@ -21,9 +21,14 @@
             <version>20141113</version>
         </dependency>
         <dependency>
+            <groupId>com.cybozu.labs</groupId>
+            <artifactId>langdetect</artifactId>
+            <version>1.1-20120112</version>
+        </dependency>
+        <dependency>
             <groupId>west</groupId>
-            <artifactId>reveal-interaction</artifactId>
-            <version>1.0</version>
+            <artifactId>reveal-predict-location</artifactId>
+            <version>0.1</version>
             <type>jar</type>
         </dependency>    
     </dependencies>
@@ -57,38 +62,38 @@
                         </lifecycleMappingMetadata>
                     </configuration>
                 </plugin>
-            </plugins>
+  	    	</plugins>
        	</pluginManagement>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-install-plugin</artifactId>
-                <version>2.4</version>
-                <executions>
-                    <execution>
-                        <id>install-reveal-interaction</id>
-                        <phase>initialize</phase>
-                        <goals>
-                            <goal>install-file</goal>
-                        </goals>
-                        <configuration>
-                            <groupId>west</groupId>
-                            <artifactId>reveal-interaction</artifactId>
-                            <version>1.0</version>
-                            <packaging>jar</packaging>
-                            <file>${basedir}/ext_jars/west/reveal-interaction-1.0.jar</file>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        	<plugin>
-        	    <groupId>org.apache.maven.plugins</groupId>
-        	    <artifactId>maven-assembly-plugin</artifactId>
-        	</plugin>
-        	<plugin>
-        	    <artifactId>exec-maven-plugin</artifactId>
-        	    <groupId>org.codehaus.mojo</groupId>
-        	</plugin>
-        </plugins>
+      	<plugins>
+      		<plugin>
+      		    <groupId>org.apache.maven.plugins</groupId>
+      		    <artifactId>maven-install-plugin</artifactId>
+      		    <version>2.4</version>
+      		    <executions>
+        	   	<execution>
+        	   	    <id>install-reveal-predict-location</id>
+        	   	    <phase>initialize</phase>
+        	   	    <goals>
+        	   	        <goal>install-file</goal>
+        	   	    </goals>
+        	   	    <configuration>
+        	   	        <groupId>west</groupId>
+        	   	        <artifactId>reveal-predict-location</artifactId>
+        	   	        <version>0.1</version>
+        	   	        <packaging>jar</packaging>
+        	   	        <file>${basedir}/ext_jars/west/reveal-predict-location-0.1.jar</file>
+        	   	    </configuration>
+        	   	</execution>
+      		    </executions>
+      		</plugin>
+       		<plugin>
+       		    <groupId>org.apache.maven.plugins</groupId>
+       		    <artifactId>maven-assembly-plugin</artifactId>
+       		</plugin>
+       		<plugin>
+       		    <artifactId>exec-maven-plugin</artifactId>
+       		    <groupId>org.codehaus.mojo</groupId>
+       		</plugin>
+      	</plugins>
     </build>
 </project>
