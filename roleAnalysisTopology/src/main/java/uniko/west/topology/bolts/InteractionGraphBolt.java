@@ -17,12 +17,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import java.io.File;
 import java.io.IOException;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.joda.time.DateTime;
@@ -40,7 +41,7 @@ public class InteractionGraphBolt extends BaseRichBolt {
     private DateTime deadline;
     private int intervalInMinutes = 10;
     private DateTime bufferStartTime = null;
-    private HashMap<String, HashMap<String, HashSet<String>>> interactionGraph = new HashMap<>();
+    private HashMap<String, HashMap<String, ArrayList<Interaction>>> interactionGraph = new HashMap<>();
 
     public InteractionGraphBolt(String strExampleEmitFieldsId) {
         super();
@@ -85,9 +86,6 @@ public class InteractionGraphBolt extends BaseRichBolt {
             return;     // skip delete messages
         }
         
-        // Print received message
-//        this.logger.info("Received message: " + message.toJSONString());
-
         DateTime timestamp = DateTime.parse((String) message.get("created_at"), DateTimeFormat.forPattern("EEE MMM dd HH:mm:ss Z yyyy").withLocale(Locale.US));
         
         if (bufferStartTime == null) {
@@ -98,9 +96,9 @@ public class InteractionGraphBolt extends BaseRichBolt {
         String authorId = (String) ((Map<Object, Object>) message.get("user")).get("id_str");
 
         if (!interactionGraph.containsKey(authorId)) {
-            interactionGraph.put(authorId, new HashMap<String, HashSet<String>>());
+            interactionGraph.put(authorId, new HashMap<String, ArrayList<Interaction>>());
         }
-        HashMap<String, HashSet<String>> authorActions = interactionGraph.get(authorId);
+        HashMap<String, ArrayList<Interaction>> authorActions = interactionGraph.get(authorId);
 
         countReplies(message, authorActions);
         countMentions(message, authorActions);
@@ -114,7 +112,8 @@ public class InteractionGraphBolt extends BaseRichBolt {
                 Map<String, Object> jsonResultObject = new HashMap();
                 jsonResultObject.put("start", bufferStartTime.toString());
                 jsonResultObject.put("end", timestamp.toString());
-                jsonResultObject.put("result", interactionGraph);
+                jsonResultObject.put("flat_graph", flattenGraph(interactionGraph));
+                jsonResultObject.put("verbose_graph", interactionGraph);
                 jsonResult = mapper.writeValueAsString(jsonResultObject);
                 Logger.getLogger(DiscussionTreeBolt.class.getName()).log(Level.INFO, "Deadline expired, Buffer size : " + interactionGraph.size());
                 this.collector.emit(new Values(jsonResult));
@@ -124,44 +123,45 @@ public class InteractionGraphBolt extends BaseRichBolt {
                 this.bufferStartTime = null;
             } catch (JsonProcessingException ex) {
                 Logger.getLogger(InteractionGraphBolt.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-            } catch (IOException ex) {
-                Logger.getLogger(InteractionGraphBolt.class.getName()).log(Level.SEVERE, null, ex);
-            }
+            } 
+//            catch (IOException ex) {
+//                Logger.getLogger(InteractionGraphBolt.class.getName()).log(Level.SEVERE, null, ex);
+//            }
         }
     }
 
-    private void countReplies(Map<Object, Object> message, HashMap<String, HashSet<String>> authorActions) {
+    private void countReplies(Map<Object, Object> message, HashMap<String, ArrayList<Interaction>> authorActions) {
         String replyId = (String) message.get("in_reply_to_user_id_str");
 
         if (replyId != null) {
             if (!authorActions.containsKey("replied_to")) {
-                authorActions.put("replied_to", new HashSet<String>());
+                authorActions.put("replied_to", new ArrayList<Interaction>());
             }
-            authorActions.get("replied_to").add(replyId);
+            authorActions.get("replied_to").add(new Interaction(replyId, (String) message.get("created_at")));
         }
     }
 
-    private void countMentions(Map<Object, Object> message, HashMap<String, HashSet<String>> authorActions) {
+    private void countMentions(Map<Object, Object> message, HashMap<String, ArrayList<Interaction>> authorActions) {
         List<Object> userMentions = (List<Object>) ((Map<Object, Object>) message.get("entities")).get("user_mentions");
         if (userMentions != null) {
             if (!authorActions.containsKey("mentioned")) {
-                authorActions.put("mentioned", new HashSet<String>());
+                authorActions.put("mentioned", new ArrayList<Interaction>());
             }
             for (Object o : userMentions) {
                 String mentionedUser = (String) ((Map<Object, Object>) o).get("id_str");
-                authorActions.get("mentioned").add(mentionedUser);
+                authorActions.get("mentioned").add(new Interaction(mentionedUser, (String) message.get("created_at")));
             }
         }
     }
 
-    private void countRetweets(Map<Object, Object> message, HashMap<String, HashSet<String>> authorActions) {
+    private void countRetweets(Map<Object, Object> message, HashMap<String, ArrayList<Interaction>> authorActions) {
         Map<Object, Object> retweetStatus = (Map<Object, Object>) message.get("retweeted_status");
         if (retweetStatus != null) {
             if (!authorActions.containsKey("retweeted")) {
-                authorActions.put("retweeted", new HashSet<String>());
+                authorActions.put("retweeted", new ArrayList<Interaction>());
             }
             String authorId = (String) ((Map<Object, Object>) retweetStatus.get("user")).get("id_str");
-            authorActions.get("retweeted").add(authorId);
+            authorActions.get("retweeted").add(new Interaction(authorId, (String) message.get("created_at")));
         }
     }
 
@@ -174,6 +174,64 @@ public class InteractionGraphBolt extends BaseRichBolt {
     @Override
     public void declareOutputFields(OutputFieldsDeclarer declarer) {
         declarer.declare(new Fields(strExampleEmitFieldsId));
+    }
+
+    private Object flattenGraph(HashMap<String, HashMap<String, ArrayList<Interaction>>> interactionGraph) {
+        HashMap<String, HashMap<String, HashSet<String>>> result = new HashMap<>();
+        for(Entry<String, HashMap<String, ArrayList<Interaction>>> userEntry : interactionGraph.entrySet()) {
+            HashMap<String, ArrayList<Interaction>> interactions = userEntry.getValue();
+            String userId = userEntry.getKey();
+            HashMap<String, HashSet<String>> userResult = new HashMap<>();
+            for(Entry<String, ArrayList<Interaction>> actionEntry : interactions.entrySet()) {
+                HashSet<String> interactionPartners = new HashSet<>();
+                String action = actionEntry.getKey();
+                for(Interaction interAction : actionEntry.getValue()) {
+                    interactionPartners.add(interAction.getUserId());
+                }
+                userResult.put(action, interactionPartners);
+            }
+            result.put(userId, userResult);
+        }
+        return result;
+    }
+
+    private static class Interaction {
+        
+        private String userId;
+        private String timestamp;
+
+        public Interaction(String userId, String timestamp) {
+            this.userId = userId;
+            this.timestamp = timestamp;
+        }
+
+        /**
+         * @return the userId
+         */
+        public String getUserId() {
+            return userId;
+        }
+
+        /**
+         * @param userId the userId to set
+         */
+        public void setUserId(String userId) {
+            this.userId = userId;
+        }
+
+        /**
+         * @return the timestamp
+         */
+        public String getTimestamp() {
+            return timestamp;
+        }
+
+        /**
+         * @param timestamp the timestamp to set
+         */
+        public void setTimestamp(String timestamp) {
+            this.timestamp = timestamp;
+        }
     }
 
 }
