@@ -209,7 +209,8 @@ public class TopologyRunner {
 		boltDeclarer = builder.setBolt("TweetIndexBoltId", tweetIndexBolt);
 		boltDeclarer.shuffleGrouping(spoutId);
 
-		TopicModelBolt topicModelBolt = new TopicModelBolt(emitFieldsId);
+		TopicModelBolt topicModelBolt = new TopicModelBolt(emitFieldsId,
+				"/home/martin/reveal/files/training");
 		boltDeclarer = builder.setBolt("TopicModelBoltId", topicModelBolt);
 		boltDeclarer.shuffleGrouping("TweetIndexBoltId");
 

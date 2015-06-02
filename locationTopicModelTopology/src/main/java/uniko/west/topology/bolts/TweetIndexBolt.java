@@ -34,14 +34,11 @@ import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
-import backtype.storm.tuple.Values;
 import ckling.text.Text;
 
 import com.cybozu.labs.langdetect.Detector;
 import com.cybozu.labs.langdetect.DetectorFactory;
 import com.cybozu.labs.langdetect.LangDetectException;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  *
@@ -172,19 +169,23 @@ public class TweetIndexBolt extends BaseRichBolt {
 		}
 
 		// create result string in JSON
-		String jsonResultString = null;
-		try {
-			ObjectMapper mapper = new ObjectMapper();
-			HashMap<String, Object> jsonResult = new HashMap<>();
-			jsonResult.put("messageTextIndices", messageTextIndices);
-			// TODO: add information that is needed to
-			jsonResultString = mapper.writeValueAsString(jsonResult);
-		} catch (JsonProcessingException ex) {
-			Logger.getLogger(TweetIndexBolt.class.getName()).log(
-					java.util.logging.Level.SEVERE, null, ex);
-		}
+		// String jsonResultString = null;
+		// try {
+		// ObjectMapper mapper = new ObjectMapper();
+		// HashMap<String, Object> jsonResult = new HashMap<>();
+		// jsonResult.put("messageTextIndices", messageTextIndices);
+		// // TODO: add information that is needed to
+		// jsonResultString = mapper.writeValueAsString(jsonResult);
+		// } catch (JsonProcessingException ex) {
+		// Logger.getLogger(TweetIndexBolt.class.getName()).log(
+		// java.util.logging.Level.SEVERE, null, ex);
+		// }
 		// end result
-		this.collector.emit(new Values(jsonResultString));
+		ArrayList<Object> result = new ArrayList<Object>();
+		message.put("messageTextIndices", messageTextIndices);
+
+		result.add((Object) message);
+		this.collector.emit(result);
 
 		// TODO remove testOut
 		try (PrintStream testOut = new PrintStream(new File(
@@ -203,7 +204,6 @@ public class TweetIndexBolt extends BaseRichBolt {
 			testOut.println("text: " + messageText);
 			testOut.println("detected language: " + langDetected);
 			testOut.println("indicies: " + messageTextIndices);
-			testOut.println("json-output: " + jsonResultString);
 
 		} catch (FileNotFoundException ex) {
 			Logger.getLogger(TweetIndexBolt.class.getName()).log(Level.SEVERE,
