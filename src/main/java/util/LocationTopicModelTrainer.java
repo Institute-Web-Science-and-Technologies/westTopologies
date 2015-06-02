@@ -40,12 +40,34 @@ public class LocationTopicModelTrainer {
 
 	public static void main(String[] args) {
 		LocationTopicModelTrainer locationTopicModelTrainer = new LocationTopicModelTrainer();
-		locationTopicModelTrainer.createTrainingFile(
-				"/home/martin/reveal/files/snow14_testset_tweets.zip",
-				"/home/martin/reveal/files/training/snow14.txt", true);
-		// locationTopicModelTrainer.setTrainingFile(new File(
-		// "/home/martin/reveal/files/training/snow14.txt"));
+		File trainingFile = null;
+
+		switch (args.length) {
+		case 1:
+			trainingFile = new File(args[0]);
+			System.out.println("Reading training file: "
+					+ trainingFile.getAbsolutePath());
+			locationTopicModelTrainer.setTrainingFile(trainingFile);
+			break;
+		case 2:
+			trainingFile = new File(args[0]);
+			File twitterZipFile = new File(args[1]);
+			System.out.println("Building training file: "
+					+ trainingFile.getAbsolutePath() + "\n"
+					+ "Using zipped twitter data from: "
+					+ twitterZipFile.getAbsolutePath());
+			locationTopicModelTrainer.createTrainingFile(twitterZipFile,
+					trainingFile, true);
+			break;
+		default:
+			throw new IllegalArgumentException(
+					"provide arguments for creating or loading a trainingFile from which the topic model is built:\n"
+							+ "\targuments for building a training file: <path-to-training-file> <path-to-twitter-zip>\n"
+							+ "\targuments for building a training file: <path-to-training-file>\n"
+							+ "\tin both cases, the topic model is built in the same folder as the training file");
+		}
 		locationTopicModelTrainer.trainTopicModel();
+
 	}
 
 	private File trainingFile = null;
@@ -83,17 +105,21 @@ public class LocationTopicModelTrainer {
 		}
 	}
 
-	public void createTrainingFile(String inputFilePath, String ouputFilePath,
+	public void createTrainingFile(File twitterZipFile, File trainingFile,
 			boolean stemTweetText) {
 		try {
 			// open zip file that contains json files containing
-			ZipFile zipFile = new ZipFile(inputFilePath);
+			ZipFile zipFile = new ZipFile(twitterZipFile);
 			Enumeration<? extends ZipEntry> entries = zipFile.entries();
 
-			// open output file
-			String tmpOutputFilePath = ouputFilePath + "_tmp";
+			// open temorary output file
+			// the temorary file is needed because we have to add the number of
+			// tweets to the first line of the training file later on
+
+			File tmpOutputFile = new File(trainingFile.getAbsolutePath()
+					+ "_tmp");
 			BufferedWriter bufferedTmpWriter = new BufferedWriter(
-					new FileWriter(tmpOutputFilePath));
+					new FileWriter(tmpOutputFile));
 			long numberOfTweets = 0;
 
 			Text text = new Text();
@@ -151,22 +177,25 @@ public class LocationTopicModelTrainer {
 					}
 				}
 				bufferedReader.close();
+
 			}
 			bufferedTmpWriter.close();
 			zipFile.close();
 
-			this.trainingFile = new File(ouputFilePath);
+			this.trainingFile = trainingFile;
 			// add number of tweets to file
 			BufferedReader bufferedTmpReader = new BufferedReader(
-					new FileReader(tmpOutputFilePath));
+					new FileReader(tmpOutputFile));
 			BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(
-					trainingFile));
+					this.trainingFile));
 			bufferedWriter.write(numberOfTweets + "\n");
 			String tmpLine;
 			while ((tmpLine = bufferedTmpReader.readLine()) != null) {
 				bufferedWriter.write(tmpLine += "\n");
 			}
 			bufferedTmpReader.close();
+			// delete temporary output file
+			tmpOutputFile.delete();
 			bufferedWriter.close();
 		} catch (IOException e) {
 			e.printStackTrace();
