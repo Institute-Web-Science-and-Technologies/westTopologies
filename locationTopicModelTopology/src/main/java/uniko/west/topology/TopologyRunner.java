@@ -205,12 +205,12 @@ public class TopologyRunner {
 		BoltDeclarer boltDeclarer;
 
 		TweetIndexBolt tweetIndexBolt = new TweetIndexBolt(emitFieldsId,
-				"/home/martin/reveal/files/training/wordmap.txt");
+				restletURL + "/static/location-topic-model/wordmap.txt");
 		boltDeclarer = builder.setBolt("TweetIndexBoltId", tweetIndexBolt);
 		boltDeclarer.shuffleGrouping(spoutId);
 
 		TopicModelBolt topicModelBolt = new TopicModelBolt(emitFieldsId,
-				"/home/martin/reveal/files/training");
+				restletURL + "/static/location-topic-model");
 		boltDeclarer = builder.setBolt("TopicModelBoltId", topicModelBolt);
 		boltDeclarer.shuffleGrouping("TweetIndexBoltId");
 
@@ -228,5 +228,4 @@ public class TopologyRunner {
 				"Submitted topology : " + topologyName);
 
 	}
-
 }

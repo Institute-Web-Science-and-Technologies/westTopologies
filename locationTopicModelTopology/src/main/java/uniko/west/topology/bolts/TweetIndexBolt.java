@@ -6,12 +6,10 @@
 package uniko.west.topology.bolts;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintStream;
-import java.io.UnsupportedEncodingException;
 import java.net.JarURLConnection;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -21,13 +19,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import jgibblda.Dictionary;
 
 import org.apache.commons.io.IOUtils;
 
+import util.FileLoader;
 import backtype.storm.task.OutputCollector;
 import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.OutputFieldsDeclarer;
@@ -53,14 +50,15 @@ public class TweetIndexBolt extends BaseRichBolt {
 	private OutputCollector collector;
 	private String strExampleEmitFieldsId;
 
-	private String pathToWordMap;
+	private String urlToWordMap;
 	private Dictionary dictionary;
+	private String pathToLocalWordMap;
 
-	public TweetIndexBolt(String strExampleEmitFieldsId, String pathToWordMap) {
+	public TweetIndexBolt(String strExampleEmitFieldsId, String urlToWordMap) {
 		super();
 
 		this.strExampleEmitFieldsId = strExampleEmitFieldsId;
-		this.pathToWordMap = pathToWordMap;
+		this.urlToWordMap = urlToWordMap;
 	}
 
 	@Override
@@ -68,13 +66,26 @@ public class TweetIndexBolt extends BaseRichBolt {
 		declarer.declare(new Fields(this.strExampleEmitFieldsId));
 	}
 
-	// TODO remove SuppressWarnings
 	@Override
 	public void prepare(@SuppressWarnings("rawtypes") Map stormConf,
 			TopologyContext context, OutputCollector collector) {
 		this.collector = collector;
-		this.dictionary = new Dictionary();
-		this.dictionary.readWordMap(this.pathToWordMap);
+		try {
+			File topologyJarFile = new File(TweetIndexBolt.class
+					.getProtectionDomain().getCodeSource().getLocation()
+					.toURI().getPath());
+			this.pathToLocalWordMap = topologyJarFile.getParent()
+					+ "/topic-model/wordmap.txt";
+			new File(new File(pathToLocalWordMap).getParent()).mkdirs();
+
+			FileLoader.getFile(urlToWordMap, pathToLocalWordMap);
+
+			this.dictionary = new Dictionary();
+			this.dictionary.readWordMap(pathToLocalWordMap);
+		} catch (URISyntaxException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 
 		// for language detection
 		String dirname = "profiles/";
@@ -112,6 +123,7 @@ public class TweetIndexBolt extends BaseRichBolt {
 
 	@Override
 	public void execute(Tuple input) {
+
 		// Retrieve hash map tuple object from Tuple input at index 0, index 1
 		// will be message delivery tag (not used here)
 		@SuppressWarnings("unchecked")
@@ -168,50 +180,27 @@ public class TweetIndexBolt extends BaseRichBolt {
 			}
 		}
 
-		// create result string in JSON
-		// String jsonResultString = null;
-		// try {
-		// ObjectMapper mapper = new ObjectMapper();
-		// HashMap<String, Object> jsonResult = new HashMap<>();
-		// jsonResult.put("messageTextIndices", messageTextIndices);
-		// // TODO: add information that is needed to
-		// jsonResultString = mapper.writeValueAsString(jsonResult);
-		// } catch (JsonProcessingException ex) {
-		// Logger.getLogger(TweetIndexBolt.class.getName()).log(
-		// java.util.logging.Level.SEVERE, null, ex);
-		// }
-		// end result
 		ArrayList<Object> result = new ArrayList<Object>();
 		message.put("messageTextIndices", messageTextIndices);
 
 		result.add((Object) message);
 		this.collector.emit(result);
 
-		// TODO remove testOut
-		try (PrintStream testOut = new PrintStream(new File(
-				"/home/martin/test/tweetIndexBolt/location"
-						+ message.hashCode() + ".log"), "UTF8")) {
-			// for (Entry<String, Object> x : message.entrySet()) {
-			// testOut.println(x.getKey() + " xxx " + x.getValue());
-			// }
-			//
-			// testOut.println("text:");
-			// testOut.println(message.get("text"));
-			// testOut.println("input length " + input.size());
-			// testOut.println("size: " + this.dictionary.id2word.size());
-			// testOut.println("test: " + this.dictionary.getWord(5));
-			// testOut.println("test: " + this.dictionary.getID("are"));
-			testOut.println("text: " + messageText);
-			testOut.println("detected language: " + langDetected);
-			testOut.println("indicies: " + messageTextIndices);
-
-		} catch (FileNotFoundException ex) {
-			Logger.getLogger(TweetIndexBolt.class.getName()).log(Level.SEVERE,
-					null, ex);
-		} catch (UnsupportedEncodingException ex) {
-			Logger.getLogger(TweetIndexBolt.class.getName()).log(Level.SEVERE,
-					null, ex);
-		}
+		// test printout
+		// try (PrintStream testOut = new PrintStream(new File(
+		// "/home/martin/test/tweetIndexBolt/location"
+		// + message.hashCode() + ".log"), "UTF8")) {
+		// testOut.println("text: " + messageText);
+		// testOut.println("detected language: " + langDetected);
+		// testOut.println("indicies: " + messageTextIndices);
+		//
+		// } catch (FileNotFoundException ex) {
+		// Logger.getLogger(TweetIndexBolt.class.getName()).log(Level.SEVERE,
+		// null, ex);
+		// } catch (UnsupportedEncodingException ex) {
+		// Logger.getLogger(TweetIndexBolt.class.getName()).log(Level.SEVERE,
+		// null, ex);
+		// }
 
 	}
 }
