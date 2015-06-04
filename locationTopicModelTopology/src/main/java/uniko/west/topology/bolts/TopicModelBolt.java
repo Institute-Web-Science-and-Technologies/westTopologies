@@ -6,10 +6,15 @@
 package uniko.west.topology.bolts;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import jgibblda.PredictLocation;
 import uniko.west.topology.datatypes.MessageLocationPrediction;
@@ -79,7 +84,7 @@ public class TopicModelBolt extends BaseRichBolt {
 		}
 		this.collector = collector;
 		this.messages = new ArrayList<HashMap<String, Object>>();
-		this.messagesPerPrediction = 50;
+		this.messagesPerPrediction = 5;
 		this.locationsPerMessage = 5;
 
 	}
@@ -96,22 +101,22 @@ public class TopicModelBolt extends BaseRichBolt {
 
 			for (HashMap<String, Object> message : messages) {
 				// test printout
-				// try (PrintStream testOut = new PrintStream(new File(
-				// "/home/martin/test/topicModelBolt/location"
-				// + message.hashCode() + ".log"), "UTF8")) {
-				// testOut.println("text: " + message.get("text"));
-				// testOut.println("messageTextIndices: "
-				// + message.get("messageTextIndices"));
-				// testOut.println("prediction: "
-				// + message.get("topicModelPrediction"));
-				//
-				// } catch (FileNotFoundException ex) {
-				// Logger.getLogger(TopicModelBolt.class.getName()).log(
-				// Level.SEVERE, null, ex);
-				// } catch (UnsupportedEncodingException ex) {
-				// Logger.getLogger(TopicModelBolt.class.getName()).log(
-				// Level.SEVERE, null, ex);
-				// }
+				try (PrintStream testOut = new PrintStream(new File(
+						"/home/martin/test/topicModelBolt/location"
+								+ message.hashCode() + ".log"), "UTF8")) {
+					testOut.println("text: " + message.get("text"));
+					testOut.println("messageTextIndices: "
+							+ message.get("messageTextIndices"));
+					testOut.println("prediction: "
+							+ message.get("topicModelPrediction"));
+
+				} catch (FileNotFoundException ex) {
+					Logger.getLogger(TopicModelBolt.class.getName()).log(
+							Level.SEVERE, null, ex);
+				} catch (UnsupportedEncodingException ex) {
+					Logger.getLogger(TopicModelBolt.class.getName()).log(
+							Level.SEVERE, null, ex);
+				}
 
 				// create results for this message
 				ArrayList<Object> results = new ArrayList<Object>();
