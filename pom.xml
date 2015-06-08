@@ -8,7 +8,6 @@
     <modules>
         <module>lodExplorerTopology</module>
         <module>roleAnalysisTopology</module>
-        <module>testDataSender</module>
         <module>locationTopicModelTopology</module>
     </modules>
     <dependencies>
