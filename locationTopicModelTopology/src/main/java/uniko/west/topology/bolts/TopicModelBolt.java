@@ -100,11 +100,8 @@ public class TopicModelBolt extends BaseRichBolt {
 				// "/home/martin/test/topicModelBolt/location"
 				// + message.hashCode() + ".log"), "UTF8")) {
 				// testOut.println("text: " + message.get("text"));
-				// testOut.println("messageTextIndices: "
-				// + message.get("messageTextIndices"));
-				// testOut.println("prediction: "
-				// + message.get("topicModelPrediction"));
-				//
+				// testOut.println("ukob:topic_set: "
+				// + message.get("ukob:topic_set"));
 				// } catch (FileNotFoundException ex) {
 				// Logger.getLogger(TopicModelBolt.class.getName()).log(
 				// Level.SEVERE, null, ex);
@@ -181,9 +178,10 @@ public class TopicModelBolt extends BaseRichBolt {
 		}
 		for (MessageLocationPrediction messageLocationPrediction : messageLocationPredictions) {
 			messageLocationPrediction.message
-					.put("topicModelPrediction",
+					.put("ukob:topic_set",
 							messageLocationPrediction
 									.getTopLocationsWithProbability(this.locationsPerMessage));
+			messageLocationPrediction.message.remove("messageTextIndices");
 		}
 
 	}
