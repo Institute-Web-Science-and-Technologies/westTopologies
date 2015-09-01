@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
 import jgibblda.LDA3;
@@ -42,32 +43,43 @@ public class LocationTopicModelTrainer {
 		LocationTopicModelTrainer locationTopicModelTrainer = new LocationTopicModelTrainer();
 		File trainingFile = null;
 
+		File twitterZipFile = null;
+		String[] skipKeywords = new String[0];
 		switch (args.length) {
 		case 1:
 			trainingFile = new File(args[0]);
 			System.out.println("Reading training file: "
 					+ trainingFile.getAbsolutePath());
 			locationTopicModelTrainer.setTrainingFile(trainingFile);
-			break;
+			locationTopicModelTrainer.trainTopicModel();
+			return;
 		case 2:
 			trainingFile = new File(args[0]);
-			File twitterZipFile = new File(args[1]);
-			System.out.println("Building training file: "
-					+ trainingFile.getAbsolutePath() + "\n"
-					+ "Using zipped twitter data from: "
-					+ twitterZipFile.getAbsolutePath());
-			locationTopicModelTrainer.createTrainingFile(twitterZipFile,
-					trainingFile, true);
+			twitterZipFile = new File(args[1]);
+			break;
+		case 3:
+			trainingFile = new File(args[0]);
+			twitterZipFile = new File(args[1]);
+
+			skipKeywords = args[2].split(",");
 			break;
 		default:
 			throw new IllegalArgumentException(
 					"provide arguments for creating or loading a trainingFile from which the topic model is built:\n"
+							+ "\targuments for building a training file while \n"
+							+ "\t\tskipping files in zip file containing keywords: <path-to-training-file> <path-to-twitter-zip> <keyword1>,<keywords2>...\n"
 							+ "\targuments for building a training file: <path-to-training-file> <path-to-twitter-zip>\n"
 							+ "\targuments for building a training file: <path-to-training-file>\n"
-							+ "\tin both cases, the topic model is built in the same folder as the training file");
+							+ "\tin all cases, the topic model is built in the same folder as the training file");
 		}
-		locationTopicModelTrainer.trainTopicModel();
+		System.out.println("Building training file: "
+				+ trainingFile.getAbsolutePath() + "\n"
+				+ "Using zipped twitter data from: "
+				+ twitterZipFile.getAbsolutePath());
+		locationTopicModelTrainer.createTrainingFile(twitterZipFile,
+				trainingFile, true, true, skipKeywords);
 
+		locationTopicModelTrainer.trainTopicModel();
 	}
 
 	private File trainingFile = null;
@@ -106,10 +118,12 @@ public class LocationTopicModelTrainer {
 	}
 
 	public void createTrainingFile(File twitterZipFile, File trainingFile,
-			boolean stemTweetText) {
+			boolean stemTweetText, boolean removeSingleCharacterWords,
+			String[] skipKeywords) {
+		// open zip file that contains json files containing
+		ZipFile zipFile;
 		try {
-			// open zip file that contains json files containing
-			ZipFile zipFile = new ZipFile(twitterZipFile);
+			zipFile = new ZipFile(twitterZipFile);
 			Enumeration<? extends ZipEntry> entries = zipFile.entries();
 
 			// open temorary output file
@@ -127,6 +141,19 @@ public class LocationTopicModelTrainer {
 			// iterate over json files in zip file
 			while (entries.hasMoreElements()) {
 				ZipEntry zipEntry = entries.nextElement();
+
+				boolean skipEntry = false;
+				// skip entries that contain skipKeywords
+				for (String skipKeyword : skipKeywords) {
+					if (zipEntry.getName().contains(skipKeyword)) {
+						skipEntry = true;
+					}
+				}
+				if (skipEntry) {
+					System.out.println("skipping: " + zipEntry.getName());
+					continue;
+				}
+
 				System.out.println("processing: " + zipEntry.getName());
 				// open reader for current json file
 				BufferedReader bufferedReader = new BufferedReader(
@@ -135,17 +162,24 @@ public class LocationTopicModelTrainer {
 				String line;
 				while ((line = bufferedReader.readLine()) != null) {
 					// create json object from current line (tweet)
-					JSONObject obj = new JSONObject(line);
-					if (!obj.get("coordinates").toString().equals("null")) {
+					JSONObject jsonObject = null;
+					try {
+						jsonObject = new JSONObject(line);
+					} catch (org.json.JSONException jsonException) {
+						// skip files with broken JSON
+						break;
+					}
+
+					if (!jsonObject.get("coordinates").toString()
+							.equals("null")) {
 						// get coordinates (W,N)
-						JSONArray coordinates = obj
-								.getJSONObject("coordinates").getJSONArray(
-										"coordinates");
+						JSONArray coordinates = jsonObject.getJSONObject(
+								"coordinates").getJSONArray("coordinates");
 
 						String tweetText;
 						if (stemTweetText) {
 							tweetText = "";
-							text.setText(obj.get("text").toString());
+							text.setText(jsonObject.get("text").toString());
 							Iterator<String> textIterator = text.getTerms();
 							while (textIterator.hasNext()) {
 								if (!tweetText.isEmpty()) {
@@ -154,8 +188,22 @@ public class LocationTopicModelTrainer {
 								tweetText += textIterator.next();
 							}
 						} else {
-							tweetText = obj.get("text").toString();
-
+							tweetText = jsonObject.get("text").toString();
+						}
+						if (removeSingleCharacterWords) {
+							// remove words that consist of one character (like
+							// & , . 1 2 3 ...)
+							String[] tweetTextSplit = tweetText.split("\\s");
+							tweetText = "";
+							for (String tweetWord : tweetTextSplit) {
+								if (tweetText.length() > 0) {
+									tweetText += " ";
+								}
+								if (tweetWord.length() > 1) {
+									tweetText += tweetWord;
+								}
+							}
+							tweetText = tweetText.replaceAll("\\s\\s+", " ");
 						}
 
 						try {
@@ -164,10 +212,14 @@ public class LocationTopicModelTrainer {
 							String langDetected;
 							langDetected = detector.detect();
 							if (langDetected.equals("en")) {
-								bufferedTmpWriter.write(coordinates.get(1)
-										+ " " + coordinates.get(0) + " "
-										+ tweetText + "\n");
-								numberOfTweets++;
+								double longitude = coordinates.getDouble(0);
+								double latitude = coordinates.getDouble(1);
+								if (longitude != 0.0 && latitude != 0.0) {
+									bufferedTmpWriter.write(latitude + " "
+											+ longitude + " " + tweetText
+											+ "\n");
+									numberOfTweets++;
+								}
 							}
 						} catch (LangDetectException e) {
 							// TODO Auto-generated catch block
@@ -197,7 +249,11 @@ public class LocationTopicModelTrainer {
 			// delete temporary output file
 			tmpOutputFile.delete();
 			bufferedWriter.close();
+		} catch (ZipException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		} catch (IOException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

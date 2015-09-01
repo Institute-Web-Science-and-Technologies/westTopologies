@@ -42,19 +42,26 @@ public class MessageLocationPrediction {
 			sortedLocationProbabilityMap.put(entry.getKey(), entry.getValue());
 		}
 
-		String resultString = "";
+		String resultString = "[";
 		int addedLocations = 0;
 		for (Entry<String, Double> entry : sortedLocationProbabilityMap
 				.entrySet()) {
 			if (addedLocations == numberOfLocations) {
 				break;
 			}
-			if (!resultString.isEmpty()) {
-				resultString += "\n";
+			if (resultString.length() > 1) {
+				resultString += "},";
 			}
-			resultString += entry.getKey() + " " + entry.getValue();
+			// TODO format coordinates
+			String[] coordinates = entry.getKey().split("\\s");
+			resultString += "{\"location\":[" + entry.getKey()
+					+ "],\"probability\":\"" + entry.getValue() + "\"";
 			addedLocations++;
 		}
+		if (resultString.length() > 1) {
+			resultString += "}";
+		}
+		resultString += "]";
 
 		return resultString;
 

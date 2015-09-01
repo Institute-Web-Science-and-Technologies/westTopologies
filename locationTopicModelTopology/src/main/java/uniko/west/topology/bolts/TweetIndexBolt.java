@@ -6,8 +6,11 @@
 package uniko.west.topology.bolts;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
 import java.net.JarURLConnection;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -19,6 +22,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import jgibblda.Dictionary;
 
@@ -187,20 +192,20 @@ public class TweetIndexBolt extends BaseRichBolt {
 		this.collector.emit(result);
 
 		// test printout
-		// try (PrintStream testOut = new PrintStream(new File(
-		// "/home/martin/test/tweetIndexBolt/location"
-		// + message.hashCode() + ".log"), "UTF8")) {
-		// testOut.println("text: " + messageText);
-		// testOut.println("detected language: " + langDetected);
-		// testOut.println("indicies: " + messageTextIndices);
-		//
-		// } catch (FileNotFoundException ex) {
-		// Logger.getLogger(TweetIndexBolt.class.getName()).log(Level.SEVERE,
-		// null, ex);
-		// } catch (UnsupportedEncodingException ex) {
-		// Logger.getLogger(TweetIndexBolt.class.getName()).log(Level.SEVERE,
-		// null, ex);
-		// }
+		try (PrintStream testOut = new PrintStream(new File(
+				"/home/martin/test/tweetIndexBolt/location"
+						+ message.hashCode() + ".log"), "UTF8")) {
+			testOut.println("text: " + messageText);
+			testOut.println("detected language: " + langDetected);
+			testOut.println("indicies: " + messageTextIndices);
+
+		} catch (FileNotFoundException ex) {
+			Logger.getLogger(TweetIndexBolt.class.getName()).log(Level.SEVERE,
+					null, ex);
+		} catch (UnsupportedEncodingException ex) {
+			Logger.getLogger(TweetIndexBolt.class.getName()).log(Level.SEVERE,
+					null, ex);
+		}
 
 	}
 }
