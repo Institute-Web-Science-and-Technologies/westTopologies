@@ -177,8 +177,9 @@ public class TopicModelBolt extends BaseRichBolt {
 			if (coordinateSplit.length < 3) {
 				continue;
 			}
-			String coordinateString = coordinateSplit[0] + " "
-					+ coordinateSplit[1];
+			// flip lat long to long lat
+			String coordinateString = Float.parseFloat(coordinateSplit[1])
+					+ "," + Float.parseFloat(coordinateSplit[0]);
 			String[] probabilities = coordinateSplit[2].split(",");
 			if (probabilities.length != messageLocationPredictions.size()) {
 				throw new IllegalStateException(
@@ -190,7 +191,7 @@ public class TopicModelBolt extends BaseRichBolt {
 						.get(probabilitiesIndex)
 						.addLocationProbability(
 								coordinateString,
-								Double.parseDouble(probabilities[probabilitiesIndex]));
+								Float.parseFloat(probabilities[probabilitiesIndex]));
 			}
 		}
 		for (MessageLocationPrediction messageLocationPrediction : messageLocationPredictions) {
