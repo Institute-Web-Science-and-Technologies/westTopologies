@@ -6,10 +6,15 @@
 package uniko.west.topology.bolts;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import jgibblda.PredictLocation;
 import uniko.west.topology.datatypes.MessageLocationPrediction;
@@ -95,20 +100,32 @@ public class TopicModelBolt extends BaseRichBolt {
 			this.runPrediction();
 
 			for (HashMap<String, Object> message : messages) {
-				// test printout
-				// try (PrintStream testOut = new PrintStream(new File(
-				// "/home/martin/test/topicModelBolt/location"
-				// + message.hashCode() + ".log"), "UTF8")) {
-				// testOut.println("text: " + message.get("text"));
-				// testOut.println("ukob:topic_set: "
-				// + message.get("ukob:topic_set"));
-				// } catch (FileNotFoundException ex) {
-				// Logger.getLogger(TopicModelBolt.class.getName()).log(
-				// Level.SEVERE, null, ex);
-				// } catch (UnsupportedEncodingException ex) {
-				// Logger.getLogger(TopicModelBolt.class.getName()).log(
-				// Level.SEVERE, null, ex);
+				// remove key-value pairs from message which are not part of the
+				// specification
+				// for (String key : message.keySet()) {
+				// if (!key.equals("itinno:item_id")
+				// && !key.equals("ukob:topic_set")) {
+				// message.remove(key);
 				// }
+				// }
+				// test printout
+				try (PrintStream testOut = new PrintStream(new File(
+						"/home/martin/test/topicModelBolt/location"
+								+ message.hashCode() + ".log"), "UTF8")) {
+					testOut.println("text: " + message.get("text"));
+					testOut.println("ukob:topic_set: "
+							+ message.get("ukob:topic_set"));
+					for (String item : message.keySet()) {
+						testOut.println(item);
+					}
+					testOut.println(message.toString());
+				} catch (FileNotFoundException ex) {
+					Logger.getLogger(TopicModelBolt.class.getName()).log(
+							Level.SEVERE, null, ex);
+				} catch (UnsupportedEncodingException ex) {
+					Logger.getLogger(TopicModelBolt.class.getName()).log(
+							Level.SEVERE, null, ex);
+				}
 
 				// create results for this message
 				ArrayList<Object> results = new ArrayList<Object>();
@@ -160,8 +177,9 @@ public class TopicModelBolt extends BaseRichBolt {
 			if (coordinateSplit.length < 3) {
 				continue;
 			}
-			String coordinateString = coordinateSplit[0] + " "
-					+ coordinateSplit[1];
+			// flip lat long to long lat
+			String coordinateString = Float.parseFloat(coordinateSplit[1])
+					+ "," + Float.parseFloat(coordinateSplit[0]);
 			String[] probabilities = coordinateSplit[2].split(",");
 			if (probabilities.length != messageLocationPredictions.size()) {
 				throw new IllegalStateException(
@@ -173,7 +191,7 @@ public class TopicModelBolt extends BaseRichBolt {
 						.get(probabilitiesIndex)
 						.addLocationProbability(
 								coordinateString,
-								Double.parseDouble(probabilities[probabilitiesIndex]));
+								Float.parseFloat(probabilities[probabilitiesIndex]));
 			}
 		}
 		for (MessageLocationPrediction messageLocationPrediction : messageLocationPredictions) {
@@ -181,7 +199,17 @@ public class TopicModelBolt extends BaseRichBolt {
 					.put("ukob:topic_set",
 							messageLocationPrediction
 									.getTopLocationsWithProbability(this.locationsPerMessage));
-			messageLocationPrediction.message.remove("messageTextIndices");
+			// remove unnessary data from message
+			ArrayList<String> keysToRemove = new ArrayList<String>();
+			for (String item : messageLocationPrediction.message.keySet()) {
+				if (!item.equals("itinno:item_id")
+						&& !item.equals("ukob:topic_set")) {
+					keysToRemove.add(item);
+				}
+			}
+			for (String keyToRemove : keysToRemove) {
+				messageLocationPrediction.message.remove(keyToRemove);
+			}
 		}
 
 	}
