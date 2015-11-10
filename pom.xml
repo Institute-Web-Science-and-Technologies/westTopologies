@@ -9,6 +9,7 @@
         <module>lodExplorerTopology</module>
         <module>roleAnalysisTopology</module>
         <module>locationTopicModelTopology</module>
+        <module>testDataSender</module>
     </modules>
     <dependencies>
         <dependency>
