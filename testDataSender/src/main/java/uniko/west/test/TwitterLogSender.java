@@ -27,14 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 package uniko.west.test;
 
-// General helper imports
-import com.rabbitmq.client.AMQP;
-import com.rabbitmq.client.AMQP.BasicProperties;
-import com.rabbitmq.client.Channel;
-import com.rabbitmq.client.Connection;
-import com.rabbitmq.client.ConnectionFactory;
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -44,6 +37,13 @@ import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+// General helper imports
+import com.rabbitmq.client.AMQP;
+import com.rabbitmq.client.AMQP.BasicProperties;
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.Connection;
+import com.rabbitmq.client.ConnectionFactory;
+
 /**
  * Example java RabbitMQ publisher for use in sending JSON objects to Storm
  * spout
@@ -51,46 +51,47 @@ import java.util.logging.Logger;
  */
 public class TwitterLogSender {
 
-    public static void main(String[] args) {
-        String strJSONFilePath = "/home/nico/rawtweet-log-1426668618964.log";
-        String exchangeName = "test-exchange";
-        try (BufferedReader br = new BufferedReader(new FileReader(strJSONFilePath))) {
+	public static void main(String[] args) {
+		String strJSONFilePath = "/home/martin/reveal/data/rawtweet-log-1426668618964.log";
+		String exchangeName = "ukob-test";
+		try (BufferedReader br = new BufferedReader(new FileReader(strJSONFilePath))) {
 
-            // send a UTF-8 encoded JSON tweet to the RabbitMQ (for stormspout to pick up and send to bolt)
-            // read UTF-8 JSON text from file
-            Logger.getLogger(TwitterLogSender.class.getName()).log(Level.INFO, "ExampleRabbitmqClient started");
+			// send a UTF-8 encoded JSON tweet to the RabbitMQ (for stormspout
+			// to pick up and send to bolt)
+			// read UTF-8 JSON text from file
+			Logger.getLogger(TwitterLogSender.class.getName()).log(Level.INFO, "ExampleRabbitmqClient started");
 
-            // connect to rabbitmq broker
-            // first of all create connection factory
-            ConnectionFactory factory = new ConnectionFactory();
-            factory.setUri("amqp://guest:guest@localhost:5672/%2F");
-            // initialise connection and define channel
-            Connection connection = factory.newConnection();
-            Channel channel = connection.createChannel();
-            String jsonLine;
+			// connect to rabbitmq broker
+			// first of all create connection factory
+			ConnectionFactory factory = new ConnectionFactory();
+			factory.setUri("amqp://guest:guest@localhost:5672/%2F");
+			// initialise connection and define channel
+			Connection connection = factory.newConnection();
+			Channel channel = connection.createChannel();
+			String jsonLine;
 
-            while ((jsonLine = br.readLine()) != null) {
-                long timestampSinceEpoch = System.currentTimeMillis() / 1000;
+			while ((jsonLine = br.readLine()) != null) {
+				long timestampSinceEpoch = System.currentTimeMillis() / 1000;
 
-                // initialise amqp basic peoperties object
-                BasicProperties.Builder basicProperties = new AMQP.BasicProperties.Builder();
-                basicProperties.build();
-                basicProperties.timestamp(new Date(timestampSinceEpoch)).build();
-                basicProperties.contentType("text/json").build();
-                basicProperties.deliveryMode(1).build();
+				// initialise amqp basic peoperties object
+				BasicProperties.Builder basicProperties = new AMQP.BasicProperties.Builder();
+				basicProperties.build();
+				basicProperties.timestamp(new Date(timestampSinceEpoch)).build();
+				basicProperties.contentType("text/json").build();
+				basicProperties.deliveryMode(1).build();
 
-                // publish message
-                channel.basicPublish(exchangeName, "test-routing", basicProperties.build(), jsonLine.getBytes("UTF-8"));
-            }
-            // close connection and channel
-            channel.close();
-            connection.close();
+				// publish message
+				channel.basicPublish(exchangeName, "test-routing", basicProperties.build(), jsonLine.getBytes("UTF-8"));
+			}
+			// close connection and channel
+			channel.close();
+			connection.close();
 
-            Logger.getLogger(TwitterLogSender.class.getName()).log(Level.INFO, "ExampleRabbitmqClient finished");
+			Logger.getLogger(TwitterLogSender.class.getName()).log(Level.INFO, "ExampleRabbitmqClient finished");
 
-        } catch (URISyntaxException | NoSuchAlgorithmException | KeyManagementException | IOException ex) {
-            Logger.getLogger(TwitterLogSender.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
+		} catch (URISyntaxException | NoSuchAlgorithmException | KeyManagementException | IOException ex) {
+			Logger.getLogger(TwitterLogSender.class.getName()).log(Level.SEVERE, null, ex);
+		}
+	}
 
 }
