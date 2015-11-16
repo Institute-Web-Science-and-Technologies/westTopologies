@@ -9,6 +9,8 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.json.JSONObject;
+
 import com.rabbitmq.client.ConnectionFactory;
 
 import backtype.storm.Config;
@@ -185,8 +187,8 @@ public class TopologyRunner {
 
 				@SuppressWarnings("unchecked")
 				HashMap<String, Object> message = (HashMap<String, Object>) input.getValue(0);
-				// TODO build json from currentMessage
-				return ((String) message.get("ukob:topic_set")).getBytes();
+				JSONObject jsonMessage = new JSONObject(message);
+				return jsonMessage.toString().getBytes();
 			}
 
 			@Override

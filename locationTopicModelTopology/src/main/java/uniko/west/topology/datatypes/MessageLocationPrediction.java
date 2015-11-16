@@ -9,26 +9,29 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 public class MessageLocationPrediction {
 	public HashMap<String, Object> message;
 	public HashMap<String, Float> locationProbabilityMap;
 
 	public MessageLocationPrediction(HashMap<String, Object> message) {
 		this.message = message;
-		locationProbabilityMap = new HashMap<String, Float>();
+		this.locationProbabilityMap = new HashMap<String, Float>();
 	}
 
 	public void addLocationProbability(String location, Float probability) {
-		locationProbabilityMap.put(location, probability);
+		this.locationProbabilityMap.put(location, probability);
 	}
 
-	public String getTopLocationsWithProbability(int numberOfLocations) {
+	public JSONArray getTopLocationsWithProbability(int numberOfLocations) {
 		// approach taken form: http://stackoverflow.com/a/13913206/2174538
-		List<Entry<String, Float>> list = new LinkedList<Entry<String, Float>>(
-				locationProbabilityMap.entrySet());
+		List<Entry<String, Float>> list = new LinkedList<Entry<String, Float>>(this.locationProbabilityMap.entrySet());
 
 		// Sorting the list based on values
 		Collections.sort(list, new Comparator<Entry<String, Float>>() {
+			@Override
 			public int compare(Entry<String, Float> o1, Entry<String, Float> o2) {
 				return o2.getValue().compareTo(o1.getValue());
 
@@ -39,30 +42,26 @@ public class MessageLocationPrediction {
 		Map<String, Float> sortedLocationProbabilityMap = new LinkedHashMap<String, Float>();
 		for (Entry<String, Float> entry : list) {
 			sortedLocationProbabilityMap.put(entry.getKey(), entry.getValue());
-		}
+		}		
+		
 
-		String resultString = "[";
+		JSONArray results = new JSONArray();
+
 		int addedLocations = 0;
-		for (Entry<String, Float> entry : sortedLocationProbabilityMap
-				.entrySet()) {
+		for (Entry<String, Float> entry : sortedLocationProbabilityMap.entrySet()) {
 			if (addedLocations == numberOfLocations) {
 				break;
 			}
-			if (resultString.length() > 1) {
-				resultString += "},";
-			}
 			// TODO format coordinates
 			String[] coordinates = entry.getKey().split("\\s");
-			resultString += "{\"location\":[" + entry.getKey()
-					+ "],\"probability\":\"" + entry.getValue() + "\"";
+			JSONObject result = new JSONObject();
+			result.put("location", entry.getKey());
+			result.put("probability", entry.getValue());
+			results.put(result);
 			addedLocations++;
 		}
-		if (resultString.length() > 1) {
-			resultString += "}";
-		}
-		resultString += "]";
-
-		return resultString;
+		
+		return results;
 
 	}
 }
