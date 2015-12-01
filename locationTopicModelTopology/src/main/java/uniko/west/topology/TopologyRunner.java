@@ -64,7 +64,7 @@ public class TopologyRunner {
 		String nimbusHost = args[4];
 
 		// TODO pass this from restlet?
-		final String rmqOutputExchange = "ukob-output-test";
+		final String rmqOutputExchange = rmqExchange + "_ukob_location_topic_model";
 
 		// Create Java properties file from the passed configuration file
 		Properties properties = new Properties();
@@ -83,10 +83,11 @@ public class TopologyRunner {
 		String rmqUsername = properties.getProperty("rmqusername", "guest");
 		String rmqPassword = properties.getProperty("rmqpassword");
 		int rmqHeartBeat = Integer.parseInt(properties.getProperty("rmqheartbeat", "10"));
+
 		// TODO where/who to decide on the two queue names? or set the first
 		// queue name just internally?
-		String rmqQueueName = properties.getProperty("rmqqueuename", "test");
-		String rmqOutputQueueName = properties.getProperty("rmqoutputqueuename", "test-ouput");
+		String rmqQueueName = rmqExchange + "_ukob_location_internal_queue";
+		String rmqOutputQueueName = properties.getProperty("rmqqueuename", "test");
 		String rmqExchangeType = properties.getProperty("rmqexchangetype", "topic");
 		final String rmqRouting = properties.getProperty("rmqrouting", "test-routing");
 		final String rmqContentType = "application/json";

@@ -4,7 +4,7 @@
     <parent>
         <groupId>uniko.west</groupId>
         <artifactId>westTopologies</artifactId>
-        <version>1.1</version>
+        <version>1.2</version>
     </parent>
     <artifactId>roleAnalysisTopology</artifactId>
     <packaging>jar</packaging>
