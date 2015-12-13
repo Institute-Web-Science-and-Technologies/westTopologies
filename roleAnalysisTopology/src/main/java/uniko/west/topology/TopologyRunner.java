@@ -29,12 +29,8 @@ import util.JacksonScheme;
 
 public class TopologyRunner {
 
-	public static String topologyName = "roleAnalysisTopology"; // the name is
-																// not important
-																// at this place
-																// it is just
-																// used in the
-																// storm UI
+	public static final String topologyFolderName = "roleAnalysisTopology";
+	public static String topologyName;
 
 	public static void main(String[] args) {
 		TopologyBuilder builder;
@@ -54,6 +50,8 @@ public class TopologyRunner {
 		String restletURL = args[2];
 		String rmqExchange = args[3];
 		String nimbusHost = args[4];
+
+		TopologyRunner.topologyName = rmqExchange + "_ukob_" + topologyFolderName;
 
 		// Create Java properties file from the passed configuration file
 		Properties properties = new Properties();

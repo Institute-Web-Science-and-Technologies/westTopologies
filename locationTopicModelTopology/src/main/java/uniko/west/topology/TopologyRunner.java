@@ -40,7 +40,8 @@ public class TopologyRunner {
 
 	// the name is not important at this place since it is just used in the
 	// storm UI
-	public static String topologyName = "locationTopicModelTopology";
+	public static final String topologyFolderName = "locationTopicModelTopology";
+	public static String topologyName;
 
 	public static void main(String[] args) {
 		TopologyBuilder builder;
@@ -62,6 +63,9 @@ public class TopologyRunner {
 		String restletURL = args[2];
 		String rmqExchange = args[3];
 		String nimbusHost = args[4];
+
+		// set topology name by also including exchange name
+		TopologyRunner.topologyName = rmqExchange + "_ukob_" + topologyFolderName;
 
 		// TODO pass this from restlet?
 		final String rmqOutputExchange = rmqExchange + "_ukob_location_topic_model";
