@@ -51,7 +51,7 @@ public class TopologyRunner {
 		String rmqExchange = args[3];
 		String nimbusHost = args[4];
 
-		TopologyRunner.topologyName = rmqExchange + "_ukob_" + topologyFolderName;
+		TopologyRunner.topologyName = rmqExchange + "_" + topologyFolderName;
 
 		// Create Java properties file from the passed configuration file
 		Properties properties = new Properties();

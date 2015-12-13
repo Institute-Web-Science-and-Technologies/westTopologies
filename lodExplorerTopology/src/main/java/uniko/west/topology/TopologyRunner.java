@@ -62,7 +62,7 @@ public class TopologyRunner {
 		String nimbusHost = args[4];
 
 		// set topology name by also including exchange name
-		TopologyRunner.topologyName = rmqExchange + "_ukob_" + topologyFolderName;
+		TopologyRunner.topologyName = rmqExchange + "_" + topologyFolderName;
 
 		// TODO pass this from restlet?
 		final String rmqOutputExchange = rmqExchange + "_ukob_lod_explorer";
