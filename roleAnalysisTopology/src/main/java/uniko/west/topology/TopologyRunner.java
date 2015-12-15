@@ -73,6 +73,7 @@ public class TopologyRunner {
 		String rmqQueueName = properties.getProperty("rmqqueuename", "test");
 		String rmqExchangeType = properties.getProperty("rmqexchangetype", "topic");
 		String rmqRouting = properties.getProperty("rmqrouting", "test-routing");
+		final boolean rmqPersistence = Boolean.parseBoolean(properties.getProperty("persistence", "false"));
 
 		String emitFieldsId = properties.getProperty("emit_fields_id", "object");
 
@@ -132,7 +133,8 @@ public class TopologyRunner {
 		 * https://github.com/ppat/storm-rabbitmq/blob/master/README.md (search
 		 * for "Declarator")
 		 */
-		declarator = new ExampleSocialMediaStormDeclarator(rmqExchange, rmqExchangeType, rmqRouting, rmqQueueName);
+		declarator = new ExampleSocialMediaStormDeclarator(rmqExchange, rmqExchangeType, rmqRouting, rmqQueueName,
+				rmqPersistence);
 
 		/*
 		 * Initialise Social Media Spout API:
