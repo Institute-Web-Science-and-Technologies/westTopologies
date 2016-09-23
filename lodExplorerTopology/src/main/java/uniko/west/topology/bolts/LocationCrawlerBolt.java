@@ -292,7 +292,7 @@ public class LocationCrawlerBolt extends BaseRichBolt {
 				"final result= " + geospatialContext.toString());
 
 		try (PrintStream testOut = new PrintStream(
-				new File("/home/martin/test/locationCrawlerBolt/location" + message.hashCode() + ".log"), "UTF8")) {
+				new File("/home/ubuntu/test/locationCrawlerBolt/location" + message.hashCode() + ".log"), "UTF8")) {
 			testOut.println("result: " + geospatialContext.toString());
 			testOut.close();
 		} catch (FileNotFoundException ex) {
