@@ -52,7 +52,7 @@ import com.rabbitmq.client.ConnectionFactory;
 public class TwitterLogSender {
 
 	public static void main(String[] args) {
-		String strJSONFilePath = "/home/martin/reveal/data/rawtweet-log-short.log";
+		String strJSONFilePath = "/home/ubuntu/data/rawtweet-log-short.log";
 		String exchangeName = "ukob-test";
 		try (BufferedReader br = new BufferedReader(new FileReader(strJSONFilePath))) {
 
