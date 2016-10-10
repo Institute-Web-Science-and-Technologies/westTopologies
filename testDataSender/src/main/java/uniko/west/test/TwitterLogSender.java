@@ -53,7 +53,7 @@ public class TwitterLogSender {
 
 	public static void main(String[] args) {
 		String strJSONFilePath = "/home/ubuntu/data/rawtweet-log-short.log";
-		String exchangeName = "ukob-test";
+		String exchangeName = "ukob_test";
 		try (BufferedReader br = new BufferedReader(new FileReader(strJSONFilePath))) {
 
 			// send a UTF-8 encoded JSON tweet to the RabbitMQ (for stormspout
