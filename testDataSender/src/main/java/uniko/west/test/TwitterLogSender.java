@@ -52,17 +52,20 @@ import com.rabbitmq.client.ConnectionFactory;
 public class TwitterLogSender {
 
 	public static void main(String[] args) {
-		/*String strJSONFilePaths = { "/home/ubuntu/data/rawtweet-log-short.log",
+/*		String strJSONFilePaths = { "/home/ubuntu/data/rawtweet-log-short.log",
 				"/home/ubuntu/data/IITNNO-prepare-json-example.json",
 				"/home/ubuntu/data/json/IITNNO-raw-JSON-example.json",
-				"/home/ubuntu/data/json/IITNNO-aggregated-geoparse-example.json" };
+				"/home/ubuntu/data/json/ITINNO-aggregated-geoparse-example.json"
+				"/home/ubuntu/data/json/CERTH-RSS-example.json" };
 */
-		// String strJSONFilePath = "/home/ubuntu/data/rawtweet-log-short.log";
-		// //short twitter log
-		 String strJSONFilePath = "/home/ubuntu/data/IITNNO-prepare-json-example.json"; //short itinno
+		String strJSONFilePath = "/home/ubuntu/data/rawtweet-log-short.log"; //short twitter log
+//		String strJSONFilePath = "/home/ubuntu/data/json/IITNNO-prepare-json-example.json";
+		//String strJSONFilePath = "/home/ubuntu/data/json/IITNNO-raw-JSON-example.json"; //short itinno
 		// example
+//		String strJSONFilePath = "/home/ubuntu/data/json/ITINNO-aggregated-geoparse-example.json"; //another itinno example
+
 		String exchangeName = "ukob_test";
-	//	for (String strJSONFilePath : strJSONFilePaths) {
+//		for (String strJSONFilePath : strJSONFilePaths) {
 			try (BufferedReader br = new BufferedReader(new FileReader(strJSONFilePath))) {
 
 				// send a UTF-8 encoded JSON tweet to the RabbitMQ (for
@@ -102,7 +105,7 @@ public class TwitterLogSender {
 
 			} catch (URISyntaxException | NoSuchAlgorithmException | KeyManagementException | IOException ex) {
 				Logger.getLogger(TwitterLogSender.class.getName()).log(Level.SEVERE, null, ex);
-			//}
+//			}
 		}
 	}
 
