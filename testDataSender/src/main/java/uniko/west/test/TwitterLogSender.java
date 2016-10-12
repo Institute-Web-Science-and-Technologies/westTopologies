@@ -52,45 +52,58 @@ import com.rabbitmq.client.ConnectionFactory;
 public class TwitterLogSender {
 
 	public static void main(String[] args) {
-		String strJSONFilePath = "/home/ubuntu/data/rawtweet-log-short.log";
+		String strJSONFilePaths = { "/home/ubuntu/data/rawtweet-log-short.log",
+				"/home/ubuntu/data/IITNNO-prepare-json-example.json",
+				"/home/ubuntu/data/json/IITNNO-raw-JSON-example.json",
+				"/home/ubuntu/data/json/IITNNO-aggregated-geoparse-example.json" };
+
+		// String strJSONFilePath = "/home/ubuntu/data/rawtweet-log-short.log";
+		// //short twitter log
+		// String strJSONFilePath =
+		// "/home/ubuntu/data/IITNNO-prepare-json-example.json"; //short itinno
+		// example
 		String exchangeName = "ukob_test";
-		try (BufferedReader br = new BufferedReader(new FileReader(strJSONFilePath))) {
+		for (String strJSONFilePath : strJSONFilePaths) {
+			try (BufferedReader br = new BufferedReader(new FileReader(strJSONFilePath))) {
 
-			// send a UTF-8 encoded JSON tweet to the RabbitMQ (for stormspout
-			// to pick up and send to bolt)
-			// read UTF-8 JSON text from file
-			Logger.getLogger(TwitterLogSender.class.getName()).log(Level.INFO, "ExampleRabbitmqClient started");
+				// send a UTF-8 encoded JSON tweet to the RabbitMQ (for
+				// stormspout
+				// to pick up and send to bolt)
+				// read UTF-8 JSON text from file
+				Logger.getLogger(TwitterLogSender.class.getName()).log(Level.INFO, strJSONFilePath + ": ExampleRabbitmqClient started");
 
-			// connect to rabbitmq broker
-			// first of all create connection factory
-			ConnectionFactory factory = new ConnectionFactory();
-			factory.setUri("amqp://guest:guest@localhost:5672/%2F");
-			// initialise connection and define channel
-			Connection connection = factory.newConnection();
-			Channel channel = connection.createChannel();
-			String jsonLine;
+				// connect to rabbitmq broker
+				// first of all create connection factory
+				ConnectionFactory factory = new ConnectionFactory();
+				factory.setUri("amqp://guest:guest@localhost:5672/%2F");
+				// initialise connection and define channel
+				Connection connection = factory.newConnection();
+				Channel channel = connection.createChannel();
+				String jsonLine;
 
-			while ((jsonLine = br.readLine()) != null) {
-				long timestampSinceEpoch = System.currentTimeMillis() / 1000;
+				while ((jsonLine = br.readLine()) != null) {
+					long timestampSinceEpoch = System.currentTimeMillis() / 1000;
 
-				// initialise amqp basic peoperties object
-				BasicProperties.Builder basicProperties = new AMQP.BasicProperties.Builder();
-				basicProperties.build();
-				basicProperties.timestamp(new Date(timestampSinceEpoch)).build();
-				basicProperties.contentType("text/json").build();
-				basicProperties.deliveryMode(1).build();
+					// initialise amqp basic peoperties object
+					BasicProperties.Builder basicProperties = new AMQP.BasicProperties.Builder();
+					basicProperties.build();
+					basicProperties.timestamp(new Date(timestampSinceEpoch)).build();
+					basicProperties.contentType("text/json").build();
+					basicProperties.deliveryMode(1).build();
 
-				// publish message
-				channel.basicPublish(exchangeName, "test-routing", basicProperties.build(), jsonLine.getBytes("UTF-8"));
+					// publish message
+					channel.basicPublish(exchangeName, "test-routing", basicProperties.build(),
+							jsonLine.getBytes("UTF-8"));
+				}
+				// close connection and channel
+				channel.close();
+				connection.close();
+
+				Logger.getLogger(TwitterLogSender.class.getName()).log(Level.INFO, "ExampleRabbitmqClient finished");
+
+			} catch (URISyntaxException | NoSuchAlgorithmException | KeyManagementException | IOException ex) {
+				Logger.getLogger(TwitterLogSender.class.getName()).log(Level.SEVERE, null, ex);
 			}
-			// close connection and channel
-			channel.close();
-			connection.close();
-
-			Logger.getLogger(TwitterLogSender.class.getName()).log(Level.INFO, "ExampleRabbitmqClient finished");
-
-		} catch (URISyntaxException | NoSuchAlgorithmException | KeyManagementException | IOException ex) {
-			Logger.getLogger(TwitterLogSender.class.getName()).log(Level.SEVERE, null, ex);
 		}
 	}
 
