@@ -14,12 +14,15 @@ import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 
 import com.hp.hpl.jena.query.ParameterizedSparqlString;
 import com.hp.hpl.jena.query.Query;
@@ -61,11 +64,32 @@ public class LocationCrawlerBolt extends BaseRichBolt {
 	private final String strExampleEmitFieldsId;
 	private final String restletURL;
 
+	//logging
+	Logger logger = Logger.getLogger(getClass().getName());
+	FileHandler fh; 
+	Date date = new Date();
+		
+	
+	@SuppressWarnings("deprecation")
 	public LocationCrawlerBolt(String strExampleEmitFieldsId, String restletURL) {
 		super();
 
 		this.restletURL = restletURL;
 		this.strExampleEmitFieldsId = strExampleEmitFieldsId;
+		
+		try {
+			new FileHandler("/home/ubuntu/logs/"+ getClass().getName() + date.getDate() + "-" + date.getTime() + ".log");
+			logger.addHandler(fh);
+			
+	        SimpleFormatter formatter = new SimpleFormatter();  
+	        fh.setFormatter(formatter);
+	        
+	        logger.info("object created");
+		}
+		catch (IOException ex){
+			
+		}
+		
 	}
 
 	/**
@@ -96,8 +120,7 @@ public class LocationCrawlerBolt extends BaseRichBolt {
 	}
 
 	private void init() {
-		Logger.getLogger(LocationCrawlerBolt.class.getName()).log(Level.INFO,
-				"in init()");
+		logger.info("in init()");
 		// read the LinkedGeoData <-> DBPedia links file
 		this.dBpediaToLinkedGeoDataMap = ModelFactory.createDefaultModel()
 				.read(this.restletURL + "/static/linkedgeodata_links.nt");
@@ -125,16 +148,12 @@ public class LocationCrawlerBolt extends BaseRichBolt {
 	}
 
 	public String mapToDBPedia(String linkedGeoDataUri) {
-		Logger.getLogger(LocationCrawlerBolt.class.getName()).log(Level.INFO,
-				"in mapToDBPedia()");
 		Model result = this.dBpediaToLinkedGeoDataMap
 				.query(new SimpleSelector(null, OWL.sameAs, new ResourceImpl(linkedGeoDataUri)));
 		return (result.size() >= 1) ? result.listSubjects().next().getURI() : null;
 	}
 
 	private Map<String, ArrayList<String>> lookUpDBPediaUri(String dbPediaUri) {
-		Logger.getLogger(LocationCrawlerBolt.class.getName()).log(Level.INFO,
-				"in lookUpDBPediaUri");
 		Map<String, ArrayList<String>> resultMap = new HashMap<>();
 		ParameterizedSparqlString queryString = new ParameterizedSparqlString(
 				"SELECT ?prop ?place" + " WHERE { ?uri ?prop ?place .}");
@@ -159,8 +178,7 @@ public class LocationCrawlerBolt extends BaseRichBolt {
 	}
 
 	private boolean checkCandidateBasedOnProperties(ArrayList<String> value) {
-		Logger.getLogger(LocationCrawlerBolt.class.getName()).log(Level.INFO,
-				"in checkCandidateBasedOnProperties()");
+
 		boolean probabilityInfoAvailable = false;
 		int totalRelevant = this.propertyProbabilityMap.get("total").get("rel");
 		int totalIrrelevant = this.propertyProbabilityMap.get("total").get("irrel");
@@ -188,9 +206,7 @@ public class LocationCrawlerBolt extends BaseRichBolt {
 		}
 	}
 
-	private Map<String, Literal> dereferenceLocation(String locationUri) {
-		Logger.getLogger(LocationCrawlerBolt.class.getName()).log(Level.INFO,
-				"in dereferenceLocation()");
+	private Map<String, Literal> dereferenceLocation(String locationUri) {;
 		HashMap<String, Literal> resultMap = new HashMap<>();
 		Model locationTriples = ModelFactory.createDefaultModel().read(locationUri);
 
@@ -227,8 +243,7 @@ public class LocationCrawlerBolt extends BaseRichBolt {
 	 */
 	@Override
 	public void execute(Tuple input) {
-		Logger.getLogger(LocationCrawlerBolt.class.getName()).log(Level.INFO,
-				"in execute()");
+		logger.info("in execute()");
 		// Retrieve hash map tuple object from Tuple input at index 0, index 1
 		// will be message delivery tag (not used here)
 		Map<Object, Object> inputMap = (HashMap<Object, Object>) input.getValue(0);
