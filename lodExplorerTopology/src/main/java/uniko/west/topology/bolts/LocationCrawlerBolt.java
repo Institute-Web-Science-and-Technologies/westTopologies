@@ -64,10 +64,6 @@ public class LocationCrawlerBolt extends BaseRichBolt {
 	private final String strExampleEmitFieldsId;
 	private final String restletURL;
 
-	//logging
-	Logger logger = Logger.getLogger(getClass().getName());
-	FileHandler fh; 
-	Date date = new Date();
 		
 	
 	@SuppressWarnings("deprecation")
@@ -77,18 +73,6 @@ public class LocationCrawlerBolt extends BaseRichBolt {
 		this.restletURL = restletURL;
 		this.strExampleEmitFieldsId = strExampleEmitFieldsId;
 		
-		try {
-			new FileHandler("/home/ubuntu/logs/"+ getClass().getName() + date.getDate() + "-" + date.getTime() + ".log");
-			logger.addHandler(fh);
-			
-	        SimpleFormatter formatter = new SimpleFormatter();  
-	        fh.setFormatter(formatter);
-	        
-	        logger.info("object created");
-		}
-		catch (IOException ex){
-			
-		}
 		
 	}
 
@@ -120,7 +104,6 @@ public class LocationCrawlerBolt extends BaseRichBolt {
 	}
 
 	private void init() {
-		logger.info("in init()");
 		// read the LinkedGeoData <-> DBPedia links file
 		this.dBpediaToLinkedGeoDataMap = ModelFactory.createDefaultModel()
 				.read(this.restletURL + "/static/linkedgeodata_links.nt");
@@ -243,7 +226,6 @@ public class LocationCrawlerBolt extends BaseRichBolt {
 	 */
 	@Override
 	public void execute(Tuple input) {
-		logger.info("in execute()");
 		// Retrieve hash map tuple object from Tuple input at index 0, index 1
 		// will be message delivery tag (not used here)
 		Map<Object, Object> inputMap = (HashMap<Object, Object>) input.getValue(0);
@@ -254,25 +236,17 @@ public class LocationCrawlerBolt extends BaseRichBolt {
 		ArrayList<Map<String, Literal>> relatedLocations = new ArrayList<>();
 
 		if (message.containsKey("itinno:loc_set")) {
-			Logger.getLogger(LocationCrawlerBolt.class.getName()).log(Level.INFO,
-					"in execute() - contains \"itinno:loc_set\"");
 			List<Object> locationSet = (List<Object>) message.get("itinno:loc_set");
 
 			for (int i = 0; i < locationSet.size(); i++) {
-				Logger.getLogger(LocationCrawlerBolt.class.getName()).log(Level.INFO,
-						"in execute() - contains \"itinno:loc_set\" - 1st for loop");
 				Map<Object, Object> locationDictionary = (Map<Object, Object>) locationSet.get(i);
 				List<Object> linkedDataUris = (List<Object>) locationDictionary.get("linked_data");
 
 				for (Object o : linkedDataUris.toArray()) {
-					Logger.getLogger(LocationCrawlerBolt.class.getName()).log(Level.INFO,
-							"in execute() - contains \"itinno:loc_set\" - 2nd for loop");
 					String linkedGeoDataUri = (String) o;
 
 					String dbPediaUri = this.mapToDBPedia(linkedGeoDataUri);
 					if (dbPediaUri != null) {
-						Logger.getLogger(LocationCrawlerBolt.class.getName()).log(Level.INFO,
-								"in execute() - contains \"itinno:loc_set\" - dbPediaUri != null");
 						Map<String, ArrayList<String>> possibleLocations = this.lookUpDBPediaUri(dbPediaUri);
 						for (Entry<String, ArrayList<String>> e : possibleLocations.entrySet()) {
 							if (this.checkCandidateBasedOnProperties(e.getValue())) {
@@ -308,8 +282,6 @@ public class LocationCrawlerBolt extends BaseRichBolt {
 
 		Map<String, Object> geospatialContext = new HashMap<>();
 		geospatialContext.put("itinno:item_id", message.get("itinno:item_id"));
-		Logger.getLogger(LocationCrawlerBolt.class.getName()).log(Level.INFO,
-				"in execute() - put \"itinno:item_id\"");
 		List<Object> exploredEntities = new ArrayList<>();
 
 		for (Map<String, Literal> location : relatedLocations) {
