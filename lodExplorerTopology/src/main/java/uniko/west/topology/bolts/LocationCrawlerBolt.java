@@ -14,15 +14,12 @@ import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.logging.SimpleFormatter;
 
 import com.hp.hpl.jena.query.ParameterizedSparqlString;
 import com.hp.hpl.jena.query.Query;
@@ -64,16 +61,11 @@ public class LocationCrawlerBolt extends BaseRichBolt {
 	private final String strExampleEmitFieldsId;
 	private final String restletURL;
 
-		
-	
-	@SuppressWarnings("deprecation")
 	public LocationCrawlerBolt(String strExampleEmitFieldsId, String restletURL) {
 		super();
 
 		this.restletURL = restletURL;
 		this.strExampleEmitFieldsId = strExampleEmitFieldsId;
-		
-		
 	}
 
 	/**
@@ -161,7 +153,6 @@ public class LocationCrawlerBolt extends BaseRichBolt {
 	}
 
 	private boolean checkCandidateBasedOnProperties(ArrayList<String> value) {
-
 		boolean probabilityInfoAvailable = false;
 		int totalRelevant = this.propertyProbabilityMap.get("total").get("rel");
 		int totalIrrelevant = this.propertyProbabilityMap.get("total").get("irrel");
@@ -189,7 +180,7 @@ public class LocationCrawlerBolt extends BaseRichBolt {
 		}
 	}
 
-	private Map<String, Literal> dereferenceLocation(String locationUri) {;
+	private Map<String, Literal> dereferenceLocation(String locationUri) {
 		HashMap<String, Literal> resultMap = new HashMap<>();
 		Model locationTriples = ModelFactory.createDefaultModel().read(locationUri);
 
