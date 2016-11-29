@@ -227,7 +227,7 @@ public class LocationCrawlerBolt extends BaseRichBolt {
 		// Get JSON object from the HashMap from the Collections.singletonList
 		Map<Object, Object> message = new HashMap<Object, Object>();
 		message = (Map<Object, Object>) inputMap.get("message");
-		geospatialContext.put("debug", "message is empty? -> " + message.isEmpty() );
+		geospatialContext.put("debug", "message is null? -> " + message == null );
 		this.collector.ack(input);
 
 		ArrayList<Map<String, Literal>> relatedLocations = new ArrayList<>();
