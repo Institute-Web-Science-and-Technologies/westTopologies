@@ -217,18 +217,23 @@ public class LocationCrawlerBolt extends BaseRichBolt {
 	 */
 	@Override
 	public void execute(Tuple input) {
+		Map<String, Object> geospatialContext = new HashMap<>();
+		geospatialContext.put("debug", "in execute");
 		// Retrieve hash map tuple object from Tuple input at index 0, index 1
 		// will be message delivery tag (not used here)
-		Map<Object, Object> inputMap = (HashMap<Object, Object>) input.getValue(0);
+		Map<Object, Object> inputMap = new HashMap<Object, Object>();
+		inputMap = (HashMap<Object, Object>) input.getValue(0);
+		geospatialContext.put("debug", "inputMap is empty? -> " + inputMap.isEmpty() );
 		// Get JSON object from the HashMap from the Collections.singletonList
-		Map<Object, Object> message = (Map<Object, Object>) inputMap.get("message");
+		Map<Object, Object> message = new HashMap<Object, Object>();
+		message = (Map<Object, Object>) inputMap.get("message");
+		geospatialContext.put("debug", "message is empty? -> " + message.isEmpty() );
 		this.collector.ack(input);
 
 		ArrayList<Map<String, Literal>> relatedLocations = new ArrayList<>();
-		Map<String, Object> geospatialContext = new HashMap<>();
-		geospatialContext.put("debug", "start");
 		
-		if (message.containsKey("itinno:loc_set")) {
+		
+		/*if (message.containsKey("itinno:loc_set")) {
 			geospatialContext.put("debug", "contains loc_set");
 			List<Object> locationSet = (List<Object>) message.get("itinno:loc_set");
 
@@ -254,7 +259,9 @@ public class LocationCrawlerBolt extends BaseRichBolt {
 							}
 						}
 					}
-				}
+				}*/
+		
+		
 				// JSONArray containerArray = (JSONArray) locationSet.get(i);
 				// String linkedGeoDataUri = (String) ((JSONArray)
 				// containerArray.get(10)).get(0);
