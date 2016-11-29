@@ -62,8 +62,9 @@ public class TwitterLogSender {
 //		String strJSONFilePath = "/home/ubuntu/data/json/IITNNO-prepare-json-example.json";
 		//String strJSONFilePath = "/home/ubuntu/data/json/IITNNO-raw-JSON-example.json"; //short itinno
 		// example
-		String strJSONFilePath = "/home/ubuntu/data/json/ITINNO-aggregated-geoparse-example.json"; //another itinno example
-
+//		String strJSONFilePath = "/home/ubuntu/data/json/ITINNO-aggregated-geoparse-example.json"; //another itinno example
+		String strJSONFilePath = "/home/ubuntu/data/json/simplified-ITINNO-aggregated-geoparse-example.json";
+		
 		String exchangeName = "ukob_test";
 //		for (String strJSONFilePath : strJSONFilePaths) {
 			try (BufferedReader br = new BufferedReader(new FileReader(strJSONFilePath))) {
