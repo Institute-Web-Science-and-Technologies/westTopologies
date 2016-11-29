@@ -218,37 +218,37 @@ public class LocationCrawlerBolt extends BaseRichBolt {
 	@Override
 	public void execute(Tuple input) {
 		Map<String, Object> geospatialContext = new HashMap<>();
-		geospatialContext.put("debug", "in execute");
+		geospatialContext.put("debug - in execute", "true");
 		// Retrieve hash map tuple object from Tuple input at index 0, index 1
 		// will be message delivery tag (not used here)
 		Map<Object, Object> inputMap = new HashMap<Object, Object>();
 		inputMap = (HashMap<Object, Object>) input.getValue(0);
-		geospatialContext.put("debug", "inputMap is empty? -> " + inputMap.isEmpty() );
+		geospatialContext.put("debug - inputMap is empty?", inputMap.isEmpty() );
 		// Get JSON object from the HashMap from the Collections.singletonList
 		Map<Object, Object> message = new HashMap<Object, Object>();
 		message = (Map<Object, Object>) inputMap.get("message");
-		geospatialContext.put("debug", "message is null? -> " + message == null );
+		geospatialContext.put("debug - message is null?", message == null );
 		this.collector.ack(input);
 
 		ArrayList<Map<String, Literal>> relatedLocations = new ArrayList<>();
 		
 		
-		/*if (message.containsKey("itinno:loc_set")) {
-			geospatialContext.put("debug", "contains loc_set");
+		if (message.containsKey("itinno:loc_set")) {
+			geospatialContext.put("debug - contains loc_set", "true");
 			List<Object> locationSet = (List<Object>) message.get("itinno:loc_set");
 
 			for (int i = 0; i < locationSet.size(); i++) {
-				geospatialContext.put("debug", "in locationSet loop");
+				geospatialContext.put("debug - in locationSet loop", "true");
 				Map<Object, Object> locationDictionary = (Map<Object, Object>) locationSet.get(i);
 				List<Object> linkedDataUris = (List<Object>) locationDictionary.get("linked_data");
 
 				for (Object o : linkedDataUris.toArray()) {
-					geospatialContext.put("debug", "in linkedDataUris loop");
+					geospatialContext.put("debug - in linkedDataUri loop", "true");
 					String linkedGeoDataUri = (String) o;
 
 					String dbPediaUri = this.mapToDBPedia(linkedGeoDataUri);
 					if (dbPediaUri != null) {
-						geospatialContext.put("debug", "dbPediaUri found");
+						geospatialContext.put("debug - dbPediaUri found", "true");
 						Map<String, ArrayList<String>> possibleLocations = this.lookUpDBPediaUri(dbPediaUri);
 						for (Entry<String, ArrayList<String>> e : possibleLocations.entrySet()) {
 							if (this.checkCandidateBasedOnProperties(e.getValue())) {
@@ -282,7 +282,7 @@ public class LocationCrawlerBolt extends BaseRichBolt {
 				// }
 				// }
 			}
-		}*/
+		}
 
 		//Map<String, Object> geospatialContext = new HashMap<>();
 		geospatialContext.put("itinno:item_id", message.get("itinno:item_id"));
