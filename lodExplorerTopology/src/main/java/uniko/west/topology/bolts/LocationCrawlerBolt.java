@@ -259,7 +259,7 @@ public class LocationCrawlerBolt extends BaseRichBolt {
 							}
 						}
 					}
-				}*/
+				}
 		
 		
 				// JSONArray containerArray = (JSONArray) locationSet.get(i);
@@ -282,7 +282,7 @@ public class LocationCrawlerBolt extends BaseRichBolt {
 				// }
 				// }
 			}
-		}
+		}*/
 
 		//Map<String, Object> geospatialContext = new HashMap<>();
 		geospatialContext.put("itinno:item_id", message.get("itinno:item_id"));
