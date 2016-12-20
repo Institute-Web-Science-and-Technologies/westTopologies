@@ -253,7 +253,7 @@ public class LocationCrawlerBolt extends BaseRichBolt {
 				
 				//there is no "linked_data" entry
 				//if (locationDictionary != null) linkedDataUris = (List<Object>) locationDictionary.get("linked_data");
-				if (linkedDataUris.isEmpty()) continue;
+				if (linkedDataUris == null || linkedDataUris.isEmpty()) continue;
 				
 				for (Object o : linkedDataUris.toArray()) {
 					geospatialContext.put("debug - in linkedDataUri loop", "true");
