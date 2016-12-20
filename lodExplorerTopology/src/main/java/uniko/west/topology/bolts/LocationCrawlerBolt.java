@@ -246,13 +246,15 @@ public class LocationCrawlerBolt extends BaseRichBolt {
 				List<Object> locationDictionaryGet = (List<Object>) locationSet.get(i);
 				Map<Object, Object> locationDictionary = new HashMap();
 				locationDictionary.put(locationDictionaryGet.get(0), locationDictionaryGet.get(1));
-				List<Object> linkedDataUris = (List<Object>) locationDictionary.get("linked_data");
+				List<Object> linkedDataUris = new ArrayList<Object>();
+				linkedDataUris = (List<Object>) locationDictionary.get("linked_data");
 
 				//Map<Object, Object> locationDictionary = new HashMap<Object,Object>(); // = (Map<Object, Object>) locationSet.get(i);
 				
 				//there is no "linked_data" entry
 				//if (locationDictionary != null) linkedDataUris = (List<Object>) locationDictionary.get("linked_data");
 				if (linkedDataUris.isEmpty()) continue;
+				
 				for (Object o : linkedDataUris.toArray()) {
 					geospatialContext.put("debug - in linkedDataUri loop", "true");
 					String linkedGeoDataUri = (String) o;
