@@ -236,8 +236,11 @@ public class LocationCrawlerBolt extends BaseRichBolt {
 		if (message.containsKey("itinno:loc_set")) {
 			geospatialContext.put("debug - contains loc_set", "true");
 			List<Object> locationSet = (List<Object>) message.get("itinno:loc_set");
-
+			
+			geospatialContext.put("locationSet size: "+locationSet.size(), "true");
 			for (int i = 0; i < locationSet.size(); i++) {
+				
+				geospatialContext.put("locationSet object: "+locationSet.get(i).toString(), "true");
 				geospatialContext.put("debug - in locationSet loop", "true");
 				geospatialContext.put("loop #" + i, "true");
 
