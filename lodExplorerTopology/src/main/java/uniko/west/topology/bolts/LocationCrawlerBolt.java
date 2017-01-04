@@ -246,7 +246,9 @@ public class LocationCrawlerBolt extends BaseRichBolt {
 
 				//List<Object> locationDictionary = (List<Object>) locationSet.get(i);
 				//need hashmap to get key "linked_data", can't get that through list
-				List<Object> locationDictionaryGet = (List<Object>) locationSet.get(i);
+				List<Object> locationDictionaryGet = new ArrayList<Object>();
+				for (int j = 0; j < locationSet.size(); j++){
+				locationDictionaryGet = (List<Object>) locationSet.get(j);}
 				Map<Object, Object> locationDictionary = new HashMap();
 				locationDictionary.put(locationDictionaryGet.get(0), locationDictionaryGet.get(1));
 				
