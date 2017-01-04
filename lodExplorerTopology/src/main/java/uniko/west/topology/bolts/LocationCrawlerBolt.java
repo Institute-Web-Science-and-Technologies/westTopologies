@@ -219,21 +219,26 @@ public class LocationCrawlerBolt extends BaseRichBolt {
 	 */
 	@Override
 	public void execute(Tuple input) {
-		Map<String, Object> geospatialContext = new HashMap<>();
-		geospatialContext.put("debug - in execute", "true");
+
 		// Retrieve hash map tuple object from Tuple input at index 0, index 1
 		// will be message delivery tag (not used here)
 		Map<Object, Object> inputMap = new HashMap<Object, Object>();
 		inputMap = (HashMap<Object, Object>) input.getValue(0);
-		geospatialContext.put("debug - inputMap is empty?", inputMap.isEmpty() );
+		
 		// Get JSON object from the HashMap from the Collections.singletonList
 		Map<Object, Object> message = new HashMap<Object, Object>();
 		message = (Map<Object, Object>) inputMap.get("message");
-		geospatialContext.put("debug - message is null?", message == null );
-		this.collector.ack(input);
 
-		ArrayList<Map<String, Literal>> relatedLocations = new ArrayList<>();
+		this.collector.ack(input);
 		
+		/* DEBUG INFO */
+		Map<String, Object> geospatialContext = new HashMap<>();
+		geospatialContext.put("debug - in execute", "true");
+		geospatialContext.put("debug - inputMap is empty?", inputMap.isEmpty() );
+		geospatialContext.put("debug - message is null?", message == null );
+		
+		
+		ArrayList<Map<String, Literal>> relatedLocations = new ArrayList<>();
 		
 		if (message.containsKey("itinno:loc_set")) {
 			geospatialContext.put("debug - contains loc_set", "true");
