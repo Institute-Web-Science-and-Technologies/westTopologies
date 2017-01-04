@@ -250,8 +250,8 @@ public class LocationCrawlerBolt extends BaseRichBolt {
 				for (int j = 0; j < locationSet.size(); j++){
 				locationDictionaryGet = (List<Object>) locationSet.get(j);}
 				Map<Object, Object> locationDictionary = new HashMap();
-				locationDictionary.put(locationDictionaryGet.get(0), locationDictionaryGet.get(1));
-				locationDictionary.put(locationDictionaryGet.get(0).toString()+"+1", locationDictionaryGet.get(1).toString()+"+1");
+				locationDictionary.put(locationDictionaryGet.get(6), "true");
+				//locationDictionary.put(locationDictionaryGet.get(0).toString()+"+1", locationDictionaryGet.get(1).toString()+"+1");
 				
 				if (locationDictionary.isEmpty()) geospatialContext.put("locationDictionary is empty", "true");
 				else {
