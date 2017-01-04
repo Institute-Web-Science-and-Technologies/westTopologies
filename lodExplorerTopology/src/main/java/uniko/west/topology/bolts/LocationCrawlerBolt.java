@@ -21,6 +21,8 @@ import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.apache.commons.lang.StringUtils;
+
 import com.hp.hpl.jena.query.ParameterizedSparqlString;
 import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QueryExecution;
@@ -255,7 +257,7 @@ public class LocationCrawlerBolt extends BaseRichBolt {
 				for (int j= 0; j < locationDictionaryGet.size(); j++){
 					//split by '='
 					String[] split = {"0","0"};
-					split = ((String) locationDictionaryGet.get(j)).split("=");
+					split = StringUtils.split((String)locationDictionaryGet.get(j), "=");
 					
 				locationDictionary.put(split[0], split[1]);}
 				
