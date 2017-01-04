@@ -15,11 +15,14 @@ import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import org.json.JSONObject;
 
 import com.hp.hpl.jena.query.ParameterizedSparqlString;
 import com.hp.hpl.jena.query.Query;
@@ -250,10 +253,21 @@ public class LocationCrawlerBolt extends BaseRichBolt {
 				for (int j = 0; j < locationSet.size(); j++){
 				locationDictionaryGet = (List<Object>) locationSet.get(j);}
 				geospatialContext.put("debug - locationDictionaryGet containts " + locationDictionaryGet.size() + " item(s)", "true");
+				
 				Map<Object, Object> locationDictionary = new HashMap();
-				for (int j= 0; j < locationDictionaryGet.size(); j++){
-				locationDictionary.put(locationDictionaryGet.get(j), 0);}
-				//locationDictionary.put(locationDictionaryGet.get(0).toString()+"+1", locationDictionaryGet.get(1).toString()+"+1");
+				JSONObject jObject = new JSONObject(locationDictionaryGet);
+				
+				Iterator<?> keys = jObject.keys();
+
+		        while( keys.hasNext() ){
+		            String key = (String)keys.next();
+		            String value = jObject.getString(key); 
+		            locationDictionary.put(key, value);
+
+		        }
+				
+				//for (int j= 0; j < locationDictionaryGet.size(); j++){
+				//locationDictionary.put(locationDictionaryGet.get(j), 0);}
 				
 				if (locationDictionary.isEmpty()) geospatialContext.put("locationDictionary is empty", "true");
 				else {
