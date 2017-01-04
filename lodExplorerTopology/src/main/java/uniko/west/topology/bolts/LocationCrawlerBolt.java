@@ -241,37 +241,35 @@ public class LocationCrawlerBolt extends BaseRichBolt {
 			
 			geospatialContext.put("locationSet size: "+locationSet.size(), "true");
 			for (int i = 0; i < locationSet.size(); i++) {
-				
-				//geospatialContext.put("locationSet object: "+locationSet.get(i).toString(), "true");
-				geospatialContext.put("debug - in locationSet loop", "true");
-				geospatialContext.put("debug - loop #" + i, "true");
 
-				//List<Object> locationDictionary = (List<Object>) locationSet.get(i);
-				//need hashmap to get key "linked_data", can't get that through list
+
+				//create List and fill it with JSON
 				List<Object> locationDictionaryGet = new ArrayList<Object>();
 				for (int j = 0; j < locationSet.size(); j++){
 				locationDictionaryGet = (List<Object>) locationSet.get(j);}
-				geospatialContext.put("debug - locationDictionaryGet containts " + locationDictionaryGet.size() + " item(s)", "true");
-				
+		
+				//convert the List to a HashMap
 				Map<Object, Object> locationDictionary = new HashMap<Object,Object>();
 				for (int j= 0; j < locationDictionaryGet.size(); j++){
-					//split by '='
-					String[] split = {"0","0"};
-					split = StringUtils.split((String)locationDictionaryGet.get(j), "=");
-					
-				locationDictionary.put(split[0], split[1]);}
+				//TODO: need to extract key and value	
+				locationDictionary.put(locationDictionaryGet.get(j), 0);}
 				
+				
+				/* DEBUG INFO */
+				geospatialContext.put("debug - in locationSet loop", "true");
+				geospatialContext.put("debug - loop #" + i, "true");
+				geospatialContext.put("debug - locationDictionaryGet containts " + locationDictionaryGet.size() + " item(s)", "true");
 				if (locationDictionary.isEmpty()) geospatialContext.put("locationDictionary is empty", "true");
 				else {
 					geospatialContext.put("debug - locationDictionary contains " +locationDictionary.size()+ " item(s)", "true");
 					geospatialContext.put("debug - locationDictionary: " +locationDictionary.toString(), "true");
 				}
+				
+				//extract value for key "linked_data" for further processing
 				List<Object> linkedDataUris = new ArrayList<Object>();
 				linkedDataUris = (List<Object>) locationDictionary.get("linked_data");
 
-				//Map<Object, Object> locationDictionary = new HashMap<Object,Object>(); // = (Map<Object, Object>) locationSet.get(i);
-				//there is no "linked_data" entry
-				//if (locationDictionary != null) linkedDataUris = (List<Object>) locationDictionary.get("linked_data");
+				//check whether there was the needed key
 				if (linkedDataUris == null) {
 					geospatialContext.put("debug - linkedDataUri is null", "true");
 					continue;
@@ -280,6 +278,7 @@ public class LocationCrawlerBolt extends BaseRichBolt {
 					geospatialContext.put("debug - linkedDataUri is empty", "true");
 					continue;
 				}
+				
 				geospatialContext.put("linkedDataUri size: "+linkedDataUris.size(), "true");
 				
 				for (Object o : linkedDataUris.toArray()) {
