@@ -242,21 +242,23 @@ public class LocationCrawlerBolt extends BaseRichBolt {
 				
 				//geospatialContext.put("locationSet object: "+locationSet.get(i).toString(), "true");
 				geospatialContext.put("debug - in locationSet loop", "true");
-				geospatialContext.put("loop #" + i, "true");
+				geospatialContext.put("debug - loop #" + i, "true");
 
 				//List<Object> locationDictionary = (List<Object>) locationSet.get(i);
 				//need hashmap to get key "linked_data", can't get that through list
 				List<Object> locationDictionaryGet = new ArrayList<Object>();
 				for (int j = 0; j < locationSet.size(); j++){
 				locationDictionaryGet = (List<Object>) locationSet.get(j);}
+				geospatialContext.put("debug - locationDictionaryGet containts " + locationDictionaryGet.size() + " item(s)", "true");
 				Map<Object, Object> locationDictionary = new HashMap();
-				locationDictionary.put(locationDictionaryGet.get(10), "true");
+				for (int j= 0; j < locationDictionaryGet.size(); j++){
+				locationDictionary.put(locationDictionaryGet.get(j), 0);}
 				//locationDictionary.put(locationDictionaryGet.get(0).toString()+"+1", locationDictionaryGet.get(1).toString()+"+1");
 				
 				if (locationDictionary.isEmpty()) geospatialContext.put("locationDictionary is empty", "true");
 				else {
-					geospatialContext.put("locationDictionary contains " +locationDictionary.size()+ " items", "true");
-					geospatialContext.put("locationDictionary: " +locationDictionary.toString(), "true");
+					geospatialContext.put("debug - locationDictionary contains " +locationDictionary.size()+ " item(s)", "true");
+					geospatialContext.put("debug - locationDictionary: " +locationDictionary.toString(), "true");
 				}
 				List<Object> linkedDataUris = new ArrayList<Object>();
 				linkedDataUris = (List<Object>) locationDictionary.get("linked_data");
@@ -265,11 +267,11 @@ public class LocationCrawlerBolt extends BaseRichBolt {
 				//there is no "linked_data" entry
 				//if (locationDictionary != null) linkedDataUris = (List<Object>) locationDictionary.get("linked_data");
 				if (linkedDataUris == null) {
-					geospatialContext.put("linkedDataUri is null", "true");
+					geospatialContext.put("debug - linkedDataUri is null", "true");
 					continue;
 				}
 				else if (linkedDataUris.isEmpty()){
-					geospatialContext.put("linkedDataUri is empty", "true");
+					geospatialContext.put("debug - linkedDataUri is empty", "true");
 					continue;
 				}
 				geospatialContext.put("linkedDataUri size: "+linkedDataUris.size(), "true");
