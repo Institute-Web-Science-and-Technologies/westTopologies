@@ -254,7 +254,8 @@ public class LocationCrawlerBolt extends BaseRichBolt {
 				Map<Object, Object> locationDictionary = new HashMap<Object,Object>();
 				for (int j= 0; j < locationDictionaryGet.size(); j++){
 					//split by '='
-					String[] split = ((String) locationDictionaryGet.get(j)).split("=");
+					String[] split = {"0","0"};
+					split = ((String) locationDictionaryGet.get(j)).split("=");
 					
 				locationDictionary.put(split[0], split[1]);}
 				
