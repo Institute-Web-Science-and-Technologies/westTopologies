@@ -271,7 +271,7 @@ public class LocationCrawlerBolt extends BaseRichBolt {
 				Map<Object, Object> locationDictionary = new HashMap<Object,Object>();
 				for (int j= 0; j < locationDictionaryGet.size(); j++){
 				//TODO: need to extract key and value	
-				String[] parts = splitString((String) locationDictionaryGet.get(j));	
+				String[] parts = splitString(locationDictionaryGet.get(j).toString());	
 				geospatialContext.put("debug - json first part: "+parts[0]+" second part: "+parts[1], "true");
 				locationDictionary.put(parts[0], parts[1]);
 				}
