@@ -62,6 +62,8 @@ public class LocationCrawlerBolt extends BaseRichBolt {
 	private boolean initialized = false;
 	private final String strExampleEmitFieldsId;
 	private final String restletURL;
+	
+	Map<String, Object> geospatialContext = new HashMap<>();
 
 	public LocationCrawlerBolt(String strExampleEmitFieldsId, String restletURL) {
 		super();
@@ -135,8 +137,10 @@ public class LocationCrawlerBolt extends BaseRichBolt {
 		ParameterizedSparqlString queryString = new ParameterizedSparqlString(
 				"SELECT ?prop ?place" + " WHERE { ?uri ?prop ?place .}");
 		queryString.setIri("?uri", dbPediaUri);
+		
+		geospatialContext.put("debug - query: "+queryString.toString(), "true");
 
-		Query query = QueryFactory.create(queryString.asQuery());
+		/*Query query = QueryFactory.create(queryString.asQuery());
 		ResultSet results;
 		try (QueryExecution qexec = QueryExecutionFactory.sparqlService("http://dbpedia.org/sparql", query)) {
 			results = qexec.execSelect();
@@ -151,7 +155,8 @@ public class LocationCrawlerBolt extends BaseRichBolt {
 			}
 		}
 
-		return resultMap;
+		return resultMap;*/
+		return new HashMap<String,ArrayList<String>>();
 	}
 
 	private boolean checkCandidateBasedOnProperties(ArrayList<String> value) {
@@ -248,7 +253,7 @@ public class LocationCrawlerBolt extends BaseRichBolt {
 		this.collector.ack(input);
 		
 		/* DEBUG INFO */
-		Map<String, Object> geospatialContext = new HashMap<>();
+
 		geospatialContext.put("debug - in execute", "true");
 		geospatialContext.put("debug - inputMap is empty?", inputMap.isEmpty() );
 		geospatialContext.put("debug - message is null?", message == null );
@@ -312,7 +317,7 @@ public class LocationCrawlerBolt extends BaseRichBolt {
 					geospatialContext.put("debug - in linkedDataUri loop", "true");
 					String linkedGeoDataUri = (String) o;
 					
-					geospatialContext.put("debug - linkedGeoDataUri: "+linkedGeoDataUri, "true");
+					geospatialContext.put("linkedGeoDataUri: "+linkedGeoDataUri, "true");
 
 					String dbPediaUri = this.mapToDBPedia(linkedGeoDataUri);
 					if (dbPediaUri != null) {
