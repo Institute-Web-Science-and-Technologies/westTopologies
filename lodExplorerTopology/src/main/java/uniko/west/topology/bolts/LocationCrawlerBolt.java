@@ -312,7 +312,7 @@ public class LocationCrawlerBolt extends BaseRichBolt {
 					geospatialContext.put("debug - in linkedDataUri loop", "true");
 					String linkedGeoDataUri = (String) o;
 					
-					geospatialContext.put("linkedGeoDataUri: "+linkedGeoDataUri, "true");
+					geospatialContext.put("debug - linkedGeoDataUri: "+linkedGeoDataUri, "true");
 
 					String dbPediaUri = this.mapToDBPedia(linkedGeoDataUri);
 					if (dbPediaUri != null) {
