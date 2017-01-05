@@ -213,6 +213,9 @@ public class LocationCrawlerBolt extends BaseRichBolt {
 	
 	/* splits the String by the char '=', returns [(String),0] if char not there*/
 	private String[] splitString(String input){
+		//clean up input
+		input.replaceAll("\\{", "").replaceAll("\\}", "");
+		
 		String[] parts = input.split("=");
 		String[] onePart;
 		if (parts.length == 1) {
