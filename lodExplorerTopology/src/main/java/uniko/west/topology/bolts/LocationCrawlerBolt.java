@@ -209,6 +209,15 @@ public class LocationCrawlerBolt extends BaseRichBolt {
 			}
 		}
 	}
+	
+	
+	/* splits the String by the char '=', returns [(String),0] if char not there*/
+	private String[] splitString(String input){
+		String[] parts = input.split("=");
+		if (parts[1] == null || parts[1].isEmpty()) parts[1] = "empty";
+		return parts;
+	}
+	
 
 	/**
 	 * searches for locations in the message and computes related locations
@@ -257,7 +266,9 @@ public class LocationCrawlerBolt extends BaseRichBolt {
 				Map<Object, Object> locationDictionary = new HashMap<Object,Object>();
 				for (int j= 0; j < locationDictionaryGet.size(); j++){
 				//TODO: need to extract key and value	
-				locationDictionary.put(locationDictionaryGet.get(j), 0);}
+				String[] parts = splitString((String) locationDictionaryGet.get(j));	
+				locationDictionary.put(parts[0], parts[1]);
+				}
 				
 				
 				/* DEBUG INFO */
