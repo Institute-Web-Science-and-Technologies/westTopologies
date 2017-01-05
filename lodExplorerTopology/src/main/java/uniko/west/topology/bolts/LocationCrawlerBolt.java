@@ -311,6 +311,8 @@ public class LocationCrawlerBolt extends BaseRichBolt {
 				for (Object o : linkedDataUris.toArray()) {
 					geospatialContext.put("debug - in linkedDataUri loop", "true");
 					String linkedGeoDataUri = (String) o;
+					
+					geospatialContext.put("linkedGeoDataUri: "+linkedGeoDataUri, "true");
 
 					String dbPediaUri = this.mapToDBPedia(linkedGeoDataUri);
 					if (dbPediaUri != null) {
