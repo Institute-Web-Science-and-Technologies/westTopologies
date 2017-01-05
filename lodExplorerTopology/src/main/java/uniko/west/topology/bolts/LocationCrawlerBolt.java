@@ -291,7 +291,10 @@ public class LocationCrawlerBolt extends BaseRichBolt {
 				
 				//extract value for key "linked_data" for further processing
 				List<Object> linkedDataUris = new ArrayList<Object>();
-				linkedDataUris =  (List<Object>) ((Object) locationDictionary.get("linked_data"));
+				for (int j = 0; j < locationDictionary.size(); j++){
+					linkedDataUris.add(locationDictionary.get("linked_data"));
+				}
+				//linkedDataUris =  (List<Object>) ((Object) locationDictionary.get("linked_data"));
 
 				//check whether there was the needed key
 				if (linkedDataUris == null) {
