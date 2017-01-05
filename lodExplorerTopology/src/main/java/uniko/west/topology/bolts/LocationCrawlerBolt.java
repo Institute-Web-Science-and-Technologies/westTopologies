@@ -214,7 +214,12 @@ public class LocationCrawlerBolt extends BaseRichBolt {
 	/* splits the String by the char '=', returns [(String),0] if char not there*/
 	private String[] splitString(String input){
 		String[] parts = input.split("=");
-		if (parts[1] == null || parts[1].isEmpty()) parts[1] = "empty";
+		String[] onePart;
+		if (parts.length == 1) {
+			String key = parts[0];
+			parts = new String[]{key, "empty"};
+		}
+		//if (parts[1] == null || parts[1].isEmpty()) parts[1] = "empty";
 		return parts;
 	}
 	
@@ -267,6 +272,7 @@ public class LocationCrawlerBolt extends BaseRichBolt {
 				for (int j= 0; j < locationDictionaryGet.size(); j++){
 				//TODO: need to extract key and value	
 				String[] parts = splitString((String) locationDictionaryGet.get(j));	
+				geospatialContext.put("debug - json first part: "+parts[0]+" second part: "+parts[1], "true");
 				locationDictionary.put(parts[0], parts[1]);
 				}
 				
