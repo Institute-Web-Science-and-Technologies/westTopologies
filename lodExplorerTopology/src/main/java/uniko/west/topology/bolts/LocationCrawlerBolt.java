@@ -23,22 +23,10 @@ import java.util.logging.Logger;
 
 import org.apache.commons.lang.StringUtils;
 
-import com.hp.hpl.jena.query.ParameterizedSparqlString;
-import com.hp.hpl.jena.query.Query;
-import com.hp.hpl.jena.query.QueryExecution;
-import com.hp.hpl.jena.query.QueryExecutionFactory;
-import com.hp.hpl.jena.query.QueryFactory;
-import com.hp.hpl.jena.query.QuerySolution;
-import com.hp.hpl.jena.query.ResultSet;
-import com.hp.hpl.jena.rdf.model.Literal;
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.ModelFactory;
-import com.hp.hpl.jena.rdf.model.SimpleSelector;
-import com.hp.hpl.jena.rdf.model.impl.ResourceImpl;
-import com.hp.hpl.jena.vocabulary.OWL;
-import com.hp.hpl.jena.vocabulary.RDFS;
-
-import com.hp.hpl.jena.sparql.engine.http.QueryEngineHTTP;
+import org.apache.jena.query.*;
+import org.apache.jena.sparql.engine.http.QueryEngineHTTP;
+import org.apache.jena.rdf.model.*;
+import org.apache.jena.vocabulary.*;
 
 import backtype.storm.task.OutputCollector;
 import backtype.storm.task.TopologyContext;
@@ -130,7 +118,7 @@ public class LocationCrawlerBolt extends BaseRichBolt {
 
 	public String mapToDBPedia(String linkedGeoDataUri) {
 		Model result = this.dBpediaToLinkedGeoDataMap
-				.query(new SimpleSelector(null, OWL.sameAs, new ResourceImpl(linkedGeoDataUri)));
+				.query(new SimpleSelector(null, OWL.sameAs, new org.apache.jena.rdf.model.impl.ResourceImpl(linkedGeoDataUri)));
 		return (result.size() >= 1) ? result.listSubjects().next().getURI() : null;
 	}
 
