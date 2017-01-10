@@ -38,6 +38,8 @@ import com.hp.hpl.jena.rdf.model.impl.ResourceImpl;
 import com.hp.hpl.jena.vocabulary.OWL;
 import com.hp.hpl.jena.vocabulary.RDFS;
 
+import com.hp.hpl.jena.sparql.engine.http.QueryEngineHTTP;
+
 import backtype.storm.task.OutputCollector;
 import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.OutputFieldsDeclarer;
@@ -140,11 +142,17 @@ public class LocationCrawlerBolt extends BaseRichBolt {
 		
 		geospatialContext.put("debug - query: "+queryString.toString(), "true");
 
-		/*Query query = QueryFactory.create(queryString.asQuery());
+		
+		Query query = QueryFactory.create(queryString.asQuery());
 		ResultSet results;
 		try (QueryExecution qexec = QueryExecutionFactory.sparqlService("http://dbpedia.org/sparql", query)) {
-			results = qexec.execSelect();
+			geospatialContext.put("debug - in qexec try", "true"); 
+			// Set the DBpedia specific timeout.
+            ((QueryEngineHTTP)qexec).addParam("timeout", "10000") ;
+            geospatialContext.put("debug - set QueryEngineHTTP params", "true");
+            results = qexec.execSelect();
 			while (results.hasNext()) {
+				geospatialContext.put("debug - in results.hasNext()", "true");
 				QuerySolution tuple = results.next();
 				if (tuple.get("place").isURIResource()) {
 					if (resultMap.get(tuple.get("place").toString()) == null) {
@@ -155,8 +163,8 @@ public class LocationCrawlerBolt extends BaseRichBolt {
 			}
 		}
 
-		return resultMap;*/
-		return new HashMap<String,ArrayList<String>>();
+		return resultMap;
+
 	}
 
 	private boolean checkCandidateBasedOnProperties(ArrayList<String> value) {
