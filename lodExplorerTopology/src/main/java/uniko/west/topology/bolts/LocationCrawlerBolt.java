@@ -13,6 +13,7 @@ import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
+import java.security.Security;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -21,12 +22,20 @@ import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.apache.commons.lang.StringUtils;
-
-import org.apache.jena.query.*;
-import org.apache.jena.sparql.engine.http.QueryEngineHTTP;
-import org.apache.jena.rdf.model.*;
-import org.apache.jena.vocabulary.*;
+import org.apache.jena.query.ParameterizedSparqlString;
+import org.apache.jena.query.Query;
+import org.apache.jena.query.QueryExecution;
+import org.apache.jena.query.QueryExecutionFactory;
+import org.apache.jena.query.QueryFactory;
+import org.apache.jena.query.QuerySolution;
+import org.apache.jena.query.ResultSet;
+import org.apache.jena.rdf.model.Literal;
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.rdf.model.SimpleSelector;
+import org.apache.jena.rdf.model.impl.ResourceImpl;
+import org.apache.jena.vocabulary.OWL;
+import org.apache.jena.vocabulary.RDFS;
 
 import backtype.storm.task.OutputCollector;
 import backtype.storm.task.TopologyContext;
@@ -118,7 +127,7 @@ public class LocationCrawlerBolt extends BaseRichBolt {
 
 	public String mapToDBPedia(String linkedGeoDataUri) {
 		Model result = this.dBpediaToLinkedGeoDataMap
-				.query(new SimpleSelector(null, OWL.sameAs, new org.apache.jena.rdf.model.impl.ResourceImpl(linkedGeoDataUri)));
+				.query(new SimpleSelector(null, OWL.sameAs, new ResourceImpl(linkedGeoDataUri)));
 		return (result.size() >= 1) ? result.listSubjects().next().getURI() : null;
 	}
 
@@ -130,17 +139,11 @@ public class LocationCrawlerBolt extends BaseRichBolt {
 		
 		geospatialContext.put("debug - query: "+queryString.toString(), "true");
 
-		
-		Query query = QueryFactory.create(queryString.asQuery());
+		/*Query query = QueryFactory.create(queryString.asQuery());
 		ResultSet results;
 		try (QueryExecution qexec = QueryExecutionFactory.sparqlService("http://dbpedia.org/sparql", query)) {
-			geospatialContext.put("debug - in qexec try", "true"); 
-			// Set the DBpedia specific timeout.
-            ((QueryEngineHTTP)qexec).addParam("timeout", "10000") ;
-            geospatialContext.put("debug - set QueryEngineHTTP params", "true");
-            results = qexec.execSelect();
+			results = qexec.execSelect();
 			while (results.hasNext()) {
-				geospatialContext.put("debug - in results.hasNext()", "true");
 				QuerySolution tuple = results.next();
 				if (tuple.get("place").isURIResource()) {
 					if (resultMap.get(tuple.get("place").toString()) == null) {
@@ -150,9 +153,8 @@ public class LocationCrawlerBolt extends BaseRichBolt {
 				}
 			}
 		}
-
-		return resultMap;
-
+		return resultMap;*/
+		return new HashMap<String,ArrayList<String>>();
 	}
 
 	private boolean checkCandidateBasedOnProperties(ArrayList<String> value) {
@@ -397,3 +399,5 @@ public class LocationCrawlerBolt extends BaseRichBolt {
 		declarer.declare(new Fields(this.strExampleEmitFieldsId));
 	}
 }
+Contact GitHub API Training Shop Blog About
+© 2017 GitHub, Inc. Terms Privacy Security Status Help
