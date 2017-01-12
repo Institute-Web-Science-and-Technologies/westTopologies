@@ -399,5 +399,3 @@ public class LocationCrawlerBolt extends BaseRichBolt {
 		declarer.declare(new Fields(this.strExampleEmitFieldsId));
 	}
 }
-Contact GitHub API Training Shop Blog About
-© 2017 GitHub, Inc. Terms Privacy Security Status Help
