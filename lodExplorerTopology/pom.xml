@@ -47,7 +47,6 @@
              <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
-        <version>1.6</version>
         <configuration>
           <shadedArtifactAttached>false</shadedArtifactAttached>
           <transformers>
@@ -76,7 +75,7 @@
         </configuration>
         <executions>
           <execution>
-            <phase>package</phase>
+            <phase>initialize</phase>
             <!--<phase /><!- - Switch off -->
             <goals>
               <goal>shade</goal>
