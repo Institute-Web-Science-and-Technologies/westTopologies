@@ -75,7 +75,7 @@
         </configuration>
         <executions>
           <execution>
-            <phase>initialize</phase>
+            <phase>install</phase>
             <!--<phase /><!- - Switch off -->
             <goals>
               <goal>shade</goal>
